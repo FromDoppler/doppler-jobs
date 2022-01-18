@@ -25,6 +25,7 @@ using System.Net.Http;
 using System.Security.Authentication;
 using CrossCutting.Authorization;
 using Doppler.Database;
+using Doppler.Notifications.Job;
 
 namespace Doppler.Jobs.Server
 {
@@ -75,6 +76,8 @@ namespace Doppler.Jobs.Server
             services.Configure<DopplerBillingJobSettings>(Configuration.GetSection("Jobs:DopplerBillingJobSettings"));
             services.Configure<DopplerBillingUsJobSettings>(Configuration.GetSection("Jobs:DopplerBillingUsJobSettings"));
             services.AddTransient<IDopplerRepository, DopplerRepository>();
+
+            services.AddTransient<Notifications.Job.Database.IDopplerRepository, Notifications.Job.Database.DopplerRepository>();
 
             ConfigureJobsScheduler();
 
@@ -144,6 +147,12 @@ namespace Doppler.Jobs.Server
                 Configuration["Jobs:DopplerBillingUsJobSettings:Identifier"],
                 job => job.Run(),
                 Configuration["Jobs:DopplerBillingUsJobSettings:IntervalCronExpression"],
+                TimeZoneInfo.FindSystemTimeZoneById(tz));
+
+            RecurringJob.AddOrUpdate<DopplerFreeTrialFinishesIn7DaysNotificationJob>(
+                Configuration["Jobs:DopplerFreeTrialFinishesIn7DaysNotificationJobSettings:Identifier"],
+                job => job.Run(),
+                Configuration["Jobs:DopplerFreeTrialFinishesIn7DaysNotificationJobSettings:IntervalCronExpression"],
                 TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }
