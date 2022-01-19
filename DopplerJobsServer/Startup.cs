@@ -26,6 +26,7 @@ using System.Security.Authentication;
 using CrossCutting.Authorization;
 using Doppler.Database;
 using Doppler.Notifications.Job;
+using CrossCutting.EmailSenderService;
 
 namespace Doppler.Jobs.Server
 {
@@ -85,6 +86,9 @@ namespace Doppler.Jobs.Server
             services.Configure<JwtOptions>(Configuration.GetSection(nameof(JwtOptions)));
             services.AddJwtToken();
             services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+
+            services.Configure<EmailNotificationsConfiguration>(Configuration.GetSection(nameof(EmailNotificationsConfiguration)));
+            services.Configure<RelayEmailSenderSettings>(Configuration.GetSection(nameof(RelayEmailSenderSettings)));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
