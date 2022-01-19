@@ -7,5 +7,7 @@ namespace Doppler.Notifications.Job.Database
     public interface IDopplerRepository
     {
         public Task<IList<UserNotification>> GetUserWithTrialExpiresInDays(int days);
+
+        public Task<IList<UserNotification>> GetUserWithTrialExpired();
     }
 }

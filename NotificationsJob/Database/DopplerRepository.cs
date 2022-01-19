@@ -46,5 +46,30 @@ namespace Doppler.Notifications.Job.Database
                 throw;
             }
         }
+
+        public async Task<IList<UserNotification>> GetUserWithTrialExpired()
+        {
+            _logger.LogInformation("Getting database connection.");
+
+            try
+            {
+                await using var conn = _dbConnectionFactory.GetConnection();
+                var query = @$"SELECT U.TrialExpirationDate, U.Email, U.FirstName, U.LastName, L.Name AS Language
+                               FROM [User] U
+                               INNER JOIN Language L ON U.IdLanguage = L.IdLanguage
+                               LEFT JOIN [BillingCredits] B ON B.IdUser = U. IdUser
+                               WHERE '{DateTime.Today.ToString("MM/dd/yyyy")}' > CONVERT(DATE, TrialExpirationDate, 120) AND B.IdUser IS NULL";
+
+                _logger.LogInformation("Sending SQL sentence to database server.");
+                var result = await conn.QueryAsync<UserNotification>(query);
+
+                return result.ToList();
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e, "Error sending SQL sentence to database server.");
+                throw;
+            }
+        }
     }
 }
