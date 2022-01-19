@@ -154,6 +154,12 @@ namespace Doppler.Jobs.Server
                 job => job.Run(),
                 Configuration["Jobs:DopplerFreeTrialFinishesIn7DaysNotificationJobSettings:IntervalCronExpression"],
                 TimeZoneInfo.FindSystemTimeZoneById(tz));
+
+            RecurringJob.AddOrUpdate<DopplerFreeTrialFinishesTodayNotificationJob>(
+                Configuration["Jobs:DopplerFreeTrialFinishesTodayNotificationJobSettings:Identifier"],
+                job => job.Run(),
+                Configuration["Jobs:DopplerFreeTrialFinishesTodayNotificationJobSettings:IntervalCronExpression"],
+                TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }
 }
