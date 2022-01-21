@@ -27,6 +27,7 @@ using CrossCutting.Authorization;
 using Doppler.Database;
 using Doppler.Notifications.Job;
 using CrossCutting.EmailSenderService;
+using Flurl.Http.Configuration;
 
 namespace Doppler.Jobs.Server
 {
@@ -89,6 +90,9 @@ namespace Doppler.Jobs.Server
 
             services.Configure<EmailNotificationsConfiguration>(Configuration.GetSection(nameof(EmailNotificationsConfiguration)));
             services.Configure<RelayEmailSenderSettings>(Configuration.GetSection(nameof(RelayEmailSenderSettings)));
+
+            services.AddSingleton<IFlurlClientFactory, PerBaseUrlFlurlClientFactory>();
+            services.AddTransient<IEmailSender, RelayEmailSender>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
