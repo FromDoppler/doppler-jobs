@@ -7,5 +7,7 @@ namespace CrossCutting.EmailSenderService
         public string UrlEmailImagesBase { get; set; }
 
         public Dictionary<string, string> FreeTrialExpiresIn7DaysNotificationsTemplateId { get; set; }
+
+        public Dictionary<string, string> FreeTrialExpiresTodayNotificationsTemplateId { get; set; }
     }
 }
