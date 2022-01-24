@@ -1,6 +1,8 @@
-﻿using Doppler.Notifications.Job.Database;
+﻿using CrossCutting.EmailSenderService;
+using Doppler.Notifications.Job.Database;
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,13 +12,19 @@ namespace Doppler.Notifications.Job
     {
         private readonly ILogger<DopplerFreeTrialExpiredNotificationJob> _logger;
         private readonly IDopplerRepository _dopplerRepository;
+        private readonly IOptions<EmailNotificationsConfiguration> _emailSettings;
+        private readonly IEmailSender _emailSender;
 
         public DopplerFreeTrialExpiredNotificationJob(
             ILogger<DopplerFreeTrialExpiredNotificationJob> logger,
-            IDopplerRepository dopplerRepository)
+            IDopplerRepository dopplerRepository,
+            IOptions<EmailNotificationsConfiguration> emailSettings,
+            IEmailSender emailSender)
         {
             _logger = logger;
-            _dopplerRepository = dopplerRepository; ;
+            _dopplerRepository = dopplerRepository;
+            _emailSettings = emailSettings;
+            _emailSender = emailSender;
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 0)]
@@ -30,8 +38,21 @@ namespace Doppler.Notifications.Job
 
             if (userNotifications.Any())
             {
-                //TODO: Integrate with Email service to send the notifications
-                _logger.LogInformation("Sending Notifications with {userNotifications} users.", userNotifications.Count);
+                foreach (var userNotification in userNotifications)
+                {
+                    var template = _emailSettings.Value.FreeTrialExpiredNotificationsTemplateId[userNotification.Language ?? "en"];
+
+                    await _emailSender.SafeSendWithTemplateAsync(
+                            templateId: template,
+                            templateModel: new
+                            {
+                                urlImagesBase = _emailSettings.Value.UrlEmailImagesBase,
+                                trialExpirationDate = userNotification.TrialExpirationDate.ToString("dd/MM/yyyy")
+                            },
+                            to: new[] { userNotification.Email });
+                }
+
+                _logger.LogInformation("Sending Free Trial Expired Notifications to {userNotifications} users.", userNotifications.Count);
             }
         }
     }
