@@ -33,7 +33,7 @@ namespace Doppler.Notifications.Job.Database
                                FROM [User] U
                                INNER JOIN Language L ON U.IdLanguage = L.IdLanguage
                                LEFT JOIN [BillingCredits] B ON B.IdUser = U. IdUser
-                               WHERE CONVERT(DATE, DATEADD(day,{days},'{DateTime.Today.ToString("MM/dd/yyyy")}'), 120) = CONVERT(DATE, TrialExpirationDate, 120) AND B.IdUser IS NULL";
+                               WHERE DATEDIFF(d, DATEADD(day, 1, GETUTCDATE()), TrialExpirationDate) = {days} AND  B.IdUser IS NULL";
 
                 _logger.LogInformation("Sending SQL sentence to database server.");
                 var result = await conn.QueryAsync<UserNotification>(query);
@@ -58,7 +58,7 @@ namespace Doppler.Notifications.Job.Database
                                FROM [User] U
                                INNER JOIN Language L ON U.IdLanguage = L.IdLanguage
                                LEFT JOIN [BillingCredits] B ON B.IdUser = U. IdUser
-                               WHERE '{DateTime.Today.ToString("MM/dd/yyyy")}' > CONVERT(DATE, TrialExpirationDate, 120) AND B.IdUser IS NULL";
+                               WHERE DATEADD(day,1,GETUTCDATE()) > TrialExpirationDate AND B.IdUser IS NULL";
 
                 _logger.LogInformation("Sending SQL sentence to database server.");
                 var result = await conn.QueryAsync<UserNotification>(query);

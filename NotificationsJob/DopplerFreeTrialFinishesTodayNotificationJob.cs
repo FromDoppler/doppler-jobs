@@ -15,7 +15,7 @@ namespace Doppler.Notifications.Job
         private readonly IOptions<EmailNotificationsConfiguration> _emailSettings;
         private readonly IEmailSender _emailSender;
 
-        private const int days = 0;
+        private const int days = 1;
 
         public DopplerFreeTrialFinishesTodayNotificationJob(
             ILogger<DopplerFreeTrialFinishesTodayNotificationJob> logger,
