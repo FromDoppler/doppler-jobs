@@ -32,8 +32,7 @@ namespace Doppler.Notifications.Job.Database
                 var query = @$"SELECT U.TrialExpirationDate, U.Email, U.FirstName, U.LastName, L.Name AS Language
                                FROM [User] U
                                INNER JOIN Language L ON U.IdLanguage = L.IdLanguage
-                               LEFT JOIN [BillingCredits] B ON B.IdUser = U. IdUser
-                               WHERE DATEDIFF(d, DATEADD(day, 1, GETUTCDATE()), TrialExpirationDate) = {days} AND  B.IdUser IS NULL";
+                               WHERE DATEDIFF(d, DATEADD(day, 1, GETUTCDATE()), TrialExpirationDate) = {days} AND (U.UpgradePending IS NULL OR U.UpgradePending = 1)";
 
                 _logger.LogInformation("Sending SQL sentence to database server.");
                 var result = await conn.QueryAsync<UserNotification>(query);
@@ -57,8 +56,7 @@ namespace Doppler.Notifications.Job.Database
                 var query = @$"SELECT U.TrialExpirationDate, U.Email, U.FirstName, U.LastName, L.Name AS Language
                                FROM [User] U
                                INNER JOIN Language L ON U.IdLanguage = L.IdLanguage
-                               LEFT JOIN [BillingCredits] B ON B.IdUser = U. IdUser
-                               WHERE DATEADD(day,1,GETUTCDATE()) > TrialExpirationDate AND B.IdUser IS NULL";
+                               WHERE  DATEDIFF(d, DATEADD(day,1,GETUTCDATE()), TrialExpirationDate) = 0 AND (U.UpgradePending IS NULL OR U.UpgradePending = 1)";
 
                 _logger.LogInformation("Sending SQL sentence to database server.");
                 var result = await conn.QueryAsync<UserNotification>(query);
