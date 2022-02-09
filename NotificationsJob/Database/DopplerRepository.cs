@@ -35,6 +35,7 @@ namespace Doppler.Notifications.Job.Database
                                WHERE DATEDIFF(d, DATEADD(day, 1, GETUTCDATE()), TrialExpirationDate) = {days} AND (U.UpgradePending IS NULL OR U.UpgradePending = 1)";
 
                 _logger.LogInformation("Sending SQL sentence to database server.");
+
                 var result = await conn.QueryAsync<UserNotification>(query);
 
                 return result.ToList();
@@ -59,6 +60,7 @@ namespace Doppler.Notifications.Job.Database
                                WHERE  DATEDIFF(d, DATEADD(day,1,GETUTCDATE()), TrialExpirationDate) = 0 AND (U.UpgradePending IS NULL OR U.UpgradePending = 1)";
 
                 _logger.LogInformation("Sending SQL sentence to database server.");
+
                 var result = await conn.QueryAsync<UserNotification>(query);
 
                 return result.ToList();
