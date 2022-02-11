@@ -49,7 +49,7 @@ namespace Doppler.Notifications.Job
                             templateModel: new
                             {
                                 urlImagesBase = _emailSettings.Value.UrlEmailImagesBase,
-                                trialExpirationDate = userNotification.TrialExpirationDate.ToString("dd/MM/yyyy")
+                                trialExpirationDate = userNotification.TrialExpirationDate.AddDays(-1).ToString("dd/MM/yyyy")
                             },
                             to: new[] { userNotification.Email });
                 }

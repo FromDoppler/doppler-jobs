@@ -27,7 +27,7 @@ namespace Doppler.Jobs.Test.Integration
         public void DopplerFreeTrialFinishesTodayNotificationJob_ShouldBeSendNotifications_WhenListIsHaveOneUserNotifications()
         {
             _dopplerRepositoryMock.Setup(x => x.GetUserWithTrialExpiresInDays(It.IsAny<int>()))
-                .ReturnsAsync(new List<UserNotification>() { new UserNotification { Email = "test@test.com" } });
+                .ReturnsAsync(new List<UserNotification>() { new UserNotification { Email = "test@test.com", TrialExpirationDate = System.DateTime.Today } });
 
             var emailSenderMock = new Mock<IEmailSender>();
             emailSenderMock.Setup(x => x.SafeSendWithTemplateAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<Attachment>>(), It.IsAny<CancellationToken>()));
