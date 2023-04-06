@@ -21,7 +21,7 @@ pipeline {
         stage('Publish in dopplerdock') {
             environment {
                 DOCKER_CREDENTIALS_ID = "dockerhub_dopplerdock"
-                DOCKER_IMAGE_NAME = "dopplerdock/doppler-jobs"
+                DOCKER_IMAGE_NAME = "dopplerdock/doppler-jobs${PACKAGE_SUFFIX}"
             }
             stages {
                 stage('Publish pre-release images from pull request') {
