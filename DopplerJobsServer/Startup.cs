@@ -63,6 +63,7 @@ namespace Doppler.Jobs.Server
                 .AddTransientHttpErrorPolicy(builder => GetRetryPolicy(httpClientPolicies.Policies.RetryAttemps));
 
             services.Configure<DopplerCurrencyServiceSettings>(Configuration.GetSection(nameof(DopplerCurrencyServiceSettings)));
+            services.Configure<DopplerDatabaseSettings>(Configuration.GetSection(nameof(DopplerDatabaseSettings)));
 
             var jobsConfig = new TimeZoneJobConfigurations
             {
