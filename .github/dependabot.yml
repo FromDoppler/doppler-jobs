@@ -1,73 +1,73 @@
 version: 2
 updates:
-- package-ecosystem: nuget
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "09:00"
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: TimeZoneConverter
-    versions:
-    - 3.4.0
-    - 3.5.0
-  - dependency-name: Microsoft.NET.Test.Sdk
-    versions:
-    - 16.8.3
-    - 16.9.1
-    - 16.9.4
-  - dependency-name: Serilog.AspNetCore
-    versions:
-    - 4.0.0
-    - 4.1.0
-  - dependency-name: Moq
-    versions:
-    - 4.16.0
-    - 4.16.1
-  - dependency-name: Hangfire.Storage.SQLite
-    versions:
-    - 0.2.5
-    - 0.3.0
-  - dependency-name: Microsoft.Extensions.Http.Polly
-    versions:
-    - 5.0.1
-  - dependency-name: Microsoft.Extensions.Http
-    versions:
-    - 5.0.0
-  - dependency-name: Microsoft.AspNetCore.TestHost
-    versions:
-    - 5.0.2
-    - 5.0.3
-  - dependency-name: Hangfire
-    versions:
-    - 1.7.19
-  - dependency-name: Hangfire.Core
-    versions:
-    - 1.7.19
-  - dependency-name: Dapper
-    versions:
-    - 2.0.78
-  - dependency-name: Microsoft.Extensions.Logging.Abstractions
-    versions:
-    - 5.0.0
-  commit-message:
-    prefix: chore
-    include: scope
-- package-ecosystem: docker
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "09:00"
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: dotnet/core/aspnet
-    versions:
-    - 3.1.11.pre.buster.pre.slim
-    - 3.1.12.pre.buster.pre.slim
-  - dependency-name: dotnet/core/sdk
-    versions:
-    - 3.1.405.pre.buster
-    - 3.1.406.pre.buster
-  commit-message:
-    prefix: chore
-    include: scope
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "09:00"
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: TimeZoneConverter
+        versions:
+          - 3.4.0
+          - 3.5.0
+      - dependency-name: Microsoft.NET.Test.Sdk
+        versions:
+          - 16.8.3
+          - 16.9.1
+          - 16.9.4
+      - dependency-name: Serilog.AspNetCore
+        versions:
+          - 4.0.0
+          - 4.1.0
+      - dependency-name: Moq
+        versions:
+          - 4.16.0
+          - 4.16.1
+      - dependency-name: Hangfire.Storage.SQLite
+        versions:
+          - 0.2.5
+          - 0.3.0
+      - dependency-name: Microsoft.Extensions.Http.Polly
+        versions:
+          - 5.0.1
+      - dependency-name: Microsoft.Extensions.Http
+        versions:
+          - 5.0.0
+      - dependency-name: Microsoft.AspNetCore.TestHost
+        versions:
+          - 5.0.2
+          - 5.0.3
+      - dependency-name: Hangfire
+        versions:
+          - 1.7.19
+      - dependency-name: Hangfire.Core
+        versions:
+          - 1.7.19
+      - dependency-name: Dapper
+        versions:
+          - 2.0.78
+      - dependency-name: Microsoft.Extensions.Logging.Abstractions
+        versions:
+          - 5.0.0
+    commit-message:
+      prefix: chore
+      include: scope
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "09:00"
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: dotnet/core/aspnet
+        versions:
+          - 3.1.11.pre.buster.pre.slim
+          - 3.1.12.pre.buster.pre.slim
+      - dependency-name: dotnet/core/sdk
+        versions:
+          - 3.1.405.pre.buster
+          - 3.1.406.pre.buster
+    commit-message:
+      prefix: chore
+      include: scope
