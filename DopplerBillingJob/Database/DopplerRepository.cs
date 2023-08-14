@@ -33,7 +33,7 @@ namespace Doppler.Billing.Job.Database
                 var query = string.Join("\n", storedProcedures);
 
                 _logger.LogInformation("Sending SQL sentence to database server.");
-                using var multiResult = await conn.QueryMultipleAsync(query, commandTimeout: conn.ConnectionTimeout);
+                using var multiResult = await conn.QueryMultipleAsync(query, commandTimeout: 90);
 
                 while (!multiResult.IsConsumed)
                 {
