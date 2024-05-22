@@ -1,4 +1,6 @@
-﻿namespace CrossCutting.DopplerSapService.Entities
+﻿using System.Collections.Generic;
+
+namespace CrossCutting.DopplerSapService.Entities
 {
     public class UserBilling
     {
@@ -21,5 +23,9 @@
         public string PurchaseOrder { get; set; }
         public string FiscalID { get; set; }
         public int BillingSystemId { get; set; } = 9;
+        public double AddOnsAmount { get; set; }
+        public IList<AdditionalService> AdditionalServices { get; set; }
+
+
     }
 }
