@@ -28,6 +28,7 @@ using Doppler.Database;
 using Doppler.Notifications.Job;
 using CrossCutting.EmailSenderService;
 using Flurl.Http.Configuration;
+using Doppler.Billing.Job.Mappers;
 
 namespace Doppler.Jobs.Server
 {
@@ -79,6 +80,7 @@ namespace Doppler.Jobs.Server
             services.Configure<DopplerBillingJobSettings>(Configuration.GetSection("Jobs:DopplerBillingJobSettings"));
             services.Configure<DopplerBillingUsJobSettings>(Configuration.GetSection("Jobs:DopplerBillingUsJobSettings"));
             services.AddTransient<IDopplerRepository, DopplerRepository>();
+            services.AddTransient<IBillingMapper, BillingMapper>();
 
             services.AddTransient<Notifications.Job.Database.IDopplerRepository, Notifications.Job.Database.DopplerRepository>();
 

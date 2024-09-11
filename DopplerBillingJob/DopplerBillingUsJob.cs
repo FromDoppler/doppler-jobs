@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CrossCutting.DopplerSapService;
 using Doppler.Billing.Job.Database;
+using Doppler.Billing.Job.Mappers;
 using Doppler.Billing.Job.Settings;
 using Hangfire;
 using Microsoft.Extensions.Logging;
@@ -16,17 +17,20 @@ namespace Doppler.Billing.Job
         private readonly IDopplerSapService _dopplerSapService;
         private readonly IDopplerRepository _dopplerRepository;
         private readonly IOptionsMonitor<DopplerBillingUsJobSettings> _dopplerBillingUsJobSettings;
+        private readonly IBillingMapper _billingMapper;
 
         public DopplerBillingUsJob(
             ILogger<DopplerBillingUsJob> logger,
             IDopplerSapService dopplerSapService,
             IDopplerRepository dopplerRepository,
-            IOptionsMonitor<DopplerBillingUsJobSettings> dopplerBillingUsJobSettings)
+            IOptionsMonitor<DopplerBillingUsJobSettings> dopplerBillingUsJobSettings,
+            IBillingMapper billingMapper)
         {
             _logger = logger;
             _dopplerSapService = dopplerSapService;
             _dopplerRepository = dopplerRepository;
             _dopplerBillingUsJobSettings = dopplerBillingUsJobSettings;
+            _billingMapper = billingMapper;
         }
 
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 0)]
@@ -41,7 +45,9 @@ namespace Doppler.Billing.Job
             {
                 _logger.LogInformation("Sending Billing data to Doppler SAP with {billingData} user billing.",
                     billingData.Count);
-                await _dopplerSapService.SendUserBillings(billingData);
+
+                var billingRequest = await _billingMapper.MapToListOfBillingRequest(billingData);
+                await _dopplerSapService.SendUserBillings(billingRequest);
             }
         }
     }

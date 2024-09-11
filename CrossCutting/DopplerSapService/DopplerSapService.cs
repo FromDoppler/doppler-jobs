@@ -80,7 +80,7 @@ namespace CrossCutting.DopplerSapService
             return httpResponse;
         }
 
-        public async Task<HttpResponseMessage> SendUserBillings(IList<UserBilling> userBillingList)
+        public async Task<HttpResponseMessage> SendUserBillings(IList<BillingRequest> userBillingList)
         {
             var uri = _dopplerSapServiceSettings.BillingEndpoint;
             _logger.LogInformation("Building http request with url {uri}.", uri);
