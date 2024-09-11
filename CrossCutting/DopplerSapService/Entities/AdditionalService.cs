@@ -9,5 +9,10 @@ namespace CrossCutting.DopplerSapService.Entities
         public double Charge { get; set; }
         public IList<Pack> Packs { get; set; }
         public AdditionalServiceTypeEnum Type { get; set; }
+        public int ExtraPeriodMonth { get; set; }
+        public int ExtraPeriodYear { get; set; }
+        public int ExtraQty { get; set; }
+        public double ExtraFee { get; set; }
+        public double ExtraFeePerUnit { get; set; }
     }
 }

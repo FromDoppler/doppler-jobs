@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Doppler.Billing.Job.Entities
 {
-    class BillingCredit
+    public class BillingCredit
     {
         public int IdBillingCredit { get; set; }
         public decimal PlanFee { get; set; }

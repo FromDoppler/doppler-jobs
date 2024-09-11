@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using CrossCutting.DopplerSapService.Entities;
+using System.Collections.Generic;
 
-namespace CrossCutting.DopplerSapService.Entities
+namespace Doppler.Billing.Job.Entities
 {
     public class UserBilling
     {
@@ -23,9 +24,10 @@ namespace CrossCutting.DopplerSapService.Entities
         public string PurchaseOrder { get; set; }
         public string FiscalID { get; set; }
         public int BillingSystemId { get; set; } = 9;
-        public double AddOnsAmount { get; set; }
-        public IList<AdditionalService> AdditionalServices { get; set; }
-
-
+        public double LandingsAmount { get; set; }
+        public double ConversationsAmount { get; set; }
+        public string ConversationsExtra { get; set; }
+        public string ConversationsExtraMonth { get; set; }
+        public string ConversationsExtraAmount { get; set; }
     }
 }

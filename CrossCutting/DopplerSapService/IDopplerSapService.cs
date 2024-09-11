@@ -8,7 +8,7 @@ namespace CrossCutting.DopplerSapService
     public interface IDopplerSapService
     {
         public Task<HttpResponseMessage> SendCurrency(IList<CurrencyResponse> currencyList);
-        public Task<HttpResponseMessage> SendUserBillings(IList<UserBilling> userBillingList);
+        public Task<HttpResponseMessage> SendUserBillings(IList<BillingRequest> userBillingList);
 
     }
 }
