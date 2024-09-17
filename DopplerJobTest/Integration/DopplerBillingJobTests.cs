@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using CrossCutting.DopplerSapService;
-using CrossCutting.DopplerSapService.Entities;
+﻿using CrossCutting.DopplerSapService;
 using Doppler.Billing.Job;
 using Doppler.Billing.Job.Database;
+using Doppler.Billing.Job.Entities;
+using Doppler.Billing.Job.Mappers;
 using Doppler.Billing.Job.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Doppler.Jobs.Test.Integration
@@ -18,6 +19,7 @@ namespace Doppler.Jobs.Test.Integration
         private readonly Mock<IDopplerSapService> _dopplerSapServiceMock;
         private readonly Mock<IDopplerRepository> _dopplerRepositoryMock;
         private readonly Mock<IOptionsMonitor<DopplerBillingJobSettings>> _dopplerBillingJobSettingsMock;
+        private readonly Mock<IBillingMapper> _billingMapperMock;
 
         public DopplerBillingJobTests()
         {
@@ -25,6 +27,7 @@ namespace Doppler.Jobs.Test.Integration
             _dopplerSapServiceMock = new Mock<IDopplerSapService>();
             _dopplerRepositoryMock = new Mock<IDopplerRepository>();
             _dopplerBillingJobSettingsMock = new Mock<IOptionsMonitor<DopplerBillingJobSettings>>();
+            _billingMapperMock = new Mock<IBillingMapper>();
         }
 
         [Fact]
@@ -38,7 +41,8 @@ namespace Doppler.Jobs.Test.Integration
                 _loggerMock.Object,
                 _dopplerSapServiceMock.Object,
                 _dopplerRepositoryMock.Object,
-                _dopplerBillingJobSettingsMock.Object);
+                _dopplerBillingJobSettingsMock.Object,
+                _billingMapperMock.Object);
 
             job.Run();
 
@@ -59,7 +63,8 @@ namespace Doppler.Jobs.Test.Integration
                 _loggerMock.Object,
                 _dopplerSapServiceMock.Object,
                 _dopplerRepositoryMock.Object,
-                _dopplerBillingJobSettingsMock.Object);
+                _dopplerBillingJobSettingsMock.Object,
+                _billingMapperMock.Object);
 
             job.Run();
 
@@ -82,7 +87,8 @@ namespace Doppler.Jobs.Test.Integration
                 _loggerMock.Object,
                 _dopplerSapServiceMock.Object,
                 _dopplerRepositoryMock.Object,
-                _dopplerBillingJobSettingsMock.Object);
+                _dopplerBillingJobSettingsMock.Object,
+                _billingMapperMock.Object);
 
             job.Run();
 

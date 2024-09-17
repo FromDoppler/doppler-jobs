@@ -44,40 +44,6 @@ namespace Doppler.Billing.Job.Database
                     result.AddRange(multiResult.Read<UserBilling>().ToList());
                 }
 
-                foreach(var billing in result)
-                {
-                    if (billing.AddOnsAmount > 0)
-                    {
-                        //Get Addon details
-                        var billingCredit = await GetCurrentBIllingCreditByUserIdAsync(billing.Id);
-                        var addOns = await GetUserAddOnsByUserIdAsync(billing.Id);
-                        var additionalServices = new List<AdditionalService>();
-
-                        foreach (UserAddOn addOn in addOns)
-                        {
-                            if (addOn.IdAddOnType == (int)AddOnTypeEnum.Landing)
-                            {
-                                var landings = (await GetLandingPlansByBillingCreditIdAsync(addOn.IdCurrentBillingCredit)).ToList();
-                                var additionalService = new AdditionalService
-                                {
-                                    Type = AdditionalServiceTypeEnum.Landing,
-                                    Charge = (double)0,
-                                    Packs = landings.Select(l => new Pack
-                                    {
-                                        Amount = Convert.ToDecimal(l.Fee) * (billingCredit.TotalMonthPlan ?? 1),
-                                        PackId = l.IdLandingPlan,
-                                        Quantity = l.PackQty
-                                    }).ToList()
-                                };
-
-                                additionalServices.Add(additionalService);
-                            }
-                        }
-
-                        billing.AdditionalServices = additionalServices;
-                    }
-                }
-
                 return result;
             }
             catch (Exception e)
@@ -87,7 +53,7 @@ namespace Doppler.Billing.Job.Database
             }
         }
 
-        private async Task<IEnumerable<UserAddOn>> GetUserAddOnsByUserIdAsync(int userId)
+        public async Task<IEnumerable<UserAddOn>> GetUserAddOnsByUserIdAsync(int userId)
         {
             await using var conn = _dbConnectionFactory.GetConnection();
             var query = $@"SELECT [IdUserAddOn]
@@ -102,7 +68,22 @@ namespace Doppler.Billing.Job.Database
             return userAddOns;
         }
 
-        private async Task<IEnumerable<LandingPlanUser>> GetLandingPlansByBillingCreditIdAsync(int billingCreditId)
+        public async Task<UserAddOn> GetUserAddOnsByUserIdAndTypeAsync(int userId, int addOnType)
+        {
+            await using var conn = _dbConnectionFactory.GetConnection();
+            var query = $@"SELECT [IdUserAddOn]
+                                ,[IdUser]
+                                ,[IdAddOnType]
+                                ,[IdCurrentBillingCredit]
+                            FROM [dbo].[UserAddOn]
+                            WHERE [IdUser] = {userId} AND [IdAddOnType] = {addOnType}";
+
+            var userAddOns = await conn.QueryFirstOrDefaultAsync<UserAddOn>(query, commandTimeout: 90);
+
+            return userAddOns;
+        }
+
+        public async Task<IEnumerable<LandingPlanUser>> GetLandingPlansByBillingCreditIdAsync(int billingCreditId)
         {
             await using var conn = _dbConnectionFactory.GetConnection();
             var query = $@"SELECT [IdLandingPlanUser]
@@ -120,19 +101,32 @@ namespace Doppler.Billing.Job.Database
             return landingPlans;
         }
 
-        private async Task<BillingCredit> GetCurrentBIllingCreditByUserIdAsync(int userId)
+        public async Task<BillingCredit> GetCurrentBIllingCreditByUserIdAsync(int userId)
         {
             await using var conn = _dbConnectionFactory.GetConnection();
             var query = $@"SELECT IdBillingCredit,
                                 PlanFee,
 	                            TotalMonthPlan
-                            FROM [Doppler2011].[dbo].[User] U
+                            FROM [dbo].[User] U
                             INNER JOIN [BillingCredits] BC ON BC.IdBillingCredit = U.IdCurrentBillingCredit
                             WHERE U.[IdUser] = {userId} ";
 
             var billingCredit = await conn.QueryFirstOrDefaultAsync<BillingCredit>(query, commandTimeout: 90);
 
             return billingCredit;
+        }
+
+        public async Task<ChatPlanUser> GetActiveChatPlanByIdBillingCredit(int currentChatBillingCreditId)
+        {
+            await using var conn = _dbConnectionFactory.GetConnection();
+            var query = $@"SELECT CPU.IdUser, CPU.IdBillingCredit, CP.IdChatPlan, CP.AdditionalConversation, CP.Fee, CP.ConversationQty
+                            FROM [ChatPlanUsers] CPU
+                            INNER JOIN [ChatPlans] CP ON CP.IdChatPlan = CPU.IdChatPlan
+                            WHERE CPU.IdBillingCredit = {currentChatBillingCreditId}";
+
+            var userAddOns = await conn.QueryFirstOrDefaultAsync<ChatPlanUser>(query, commandTimeout: 90);
+
+            return userAddOns;
         }
     }
 }
