@@ -70,35 +70,30 @@ namespace Doppler.Billing.Job.Mappers
                         }
                     }
 
-                    billingRequest.AdditionalServices = additionalServices;
+                    
                 }
 
                 if (userBilling.ConversationsAmount > 0 || !string.IsNullOrEmpty(userBilling.ConversationsExtra))
                 {
-                    var conversationsAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(userBilling.Id, (int)AddOnTypeEnum.Chat);
-                    if (conversationsAddOn != null)
+                    if (userBilling.PlanType != 0)
                     {
-                        var chatPlanUser = await dopplerRepository.GetActiveChatPlanByIdBillingCredit(conversationsAddOn.IdCurrentBillingCredit);
-                        var totalMonth = userBilling.Periodicity == 0 ? 1 :
-                                         userBilling.Periodicity == 1 ? 3 :
-                                         userBilling.Periodicity == 2 ? 6 :
-                                         userBilling.Periodicity == 3 ? 12 :
-                                         0;
-
-                        var additionalService = new AdditionalService
+                        var conversationAdditionalService = await GetConversationAdditionalServiceAsync(userBilling, userBilling.Id, AccountTypeEnum.User);
+                        if (conversationAdditionalService != null)
                         {
-                            Type = AdditionalServiceTypeEnum.Chat,
-                            Charge = (double)userBilling.ConversationsAmount,
-                            PlanFee = chatPlanUser != null ? ((double)chatPlanUser.Fee * totalMonth) : 0,
-                            ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Month,
-                            ExtraPeriodYear = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Year,
-                            ExtraFee = !string.IsNullOrEmpty(userBilling.ConversationsExtraAmount) ? Convert.ToDouble(userBilling.ConversationsExtraAmount) : 0,
-                            ExtraFeePerUnit = chatPlanUser != null ? (double)chatPlanUser.AdditionalConversation : 0,
-                            ConversationQty = chatPlanUser != null ? chatPlanUser.ConversationQty : 0,
-                            ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0
-                        };
-
-                        billingRequest.AdditionalServices.Add(additionalService);
+                            billingRequest.AdditionalServices.Add(conversationAdditionalService);
+                        }
+                    }
+                    else
+                    {
+                        var userIds = await dopplerRepository.GetUserIdsByClientManagerIdAsync(userBilling.Id);
+                        foreach (var userId in userIds)
+                        {
+                            var conversationAdditionalService = await GetConversationAdditionalServiceAsync(userBilling, userId, AccountTypeEnum.CM);
+                            if (conversationAdditionalService != null)
+                            {
+                                billingRequest.AdditionalServices.Add(conversationAdditionalService);
+                            }
+                        }
                     }
                 }
 
@@ -106,6 +101,42 @@ namespace Doppler.Billing.Job.Mappers
             }
 
             return result;
+        }
+
+        private async Task<AdditionalService> GetConversationAdditionalServiceAsync(UserBilling userBilling, int userId, AccountTypeEnum accountType)
+        {
+            var conversationsAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(userId, (int)AddOnTypeEnum.Chat);
+            if (conversationsAddOn != null)
+            {
+                var chatPlanUser = await dopplerRepository.GetActiveChatPlanByIdBillingCredit(conversationsAddOn.IdCurrentBillingCredit);
+                var totalMonth = userBilling.Periodicity == 0 ? 1 :
+                                 userBilling.Periodicity == 1 ? 3 :
+                                 userBilling.Periodicity == 2 ? 6 :
+                                 userBilling.Periodicity == 3 ? 12 :
+                                 1;
+
+                var rate = userBilling.Currency > 0 ? await dopplerRepository.GetCurrenyRate(0, userBilling.Currency ?? 0) : 1;
+
+                var additionalService = new AdditionalService
+                {
+                    Type = AdditionalServiceTypeEnum.Chat,
+                    Charge = accountType == AccountTypeEnum.User ? 
+                                            (double)userBilling.ConversationsAmount : 
+                                            chatPlanUser != null ? ((double)chatPlanUser.Fee * totalMonth) * (double)rate : 0,
+                    PlanFee = chatPlanUser != null ? ((double)chatPlanUser.Fee * totalMonth) * (double)rate : 0,
+                    ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Month,
+                    ExtraPeriodYear = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Year,
+                    ExtraFee = !string.IsNullOrEmpty(userBilling.ConversationsExtraAmount) ? Convert.ToDouble(userBilling.ConversationsExtraAmount) : 0,
+                    ExtraFeePerUnit = chatPlanUser != null ? (double)chatPlanUser.AdditionalConversation : 0,
+                    ConversationQty = chatPlanUser != null ? chatPlanUser.ConversationQty : 0,
+                    ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0,
+                    IsCustom = chatPlanUser.IsCustom
+                };
+
+                return additionalService;
+            }
+
+            return null;
         }
     }
 }

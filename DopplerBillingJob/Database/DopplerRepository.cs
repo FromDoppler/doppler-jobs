@@ -119,7 +119,7 @@ namespace Doppler.Billing.Job.Database
         public async Task<ChatPlanUser> GetActiveChatPlanByIdBillingCredit(int currentChatBillingCreditId)
         {
             await using var conn = _dbConnectionFactory.GetConnection();
-            var query = $@"SELECT CPU.IdUser, CPU.IdBillingCredit, CP.IdChatPlan, CP.AdditionalConversation, CP.Fee, CP.ConversationQty
+            var query = $@"SELECT CPU.IdUser, CPU.IdBillingCredit, CP.IdChatPlan, CP.AdditionalConversation, CP.Fee, CP.ConversationQty, CP.Custom AS IsCustom
                             FROM [ChatPlanUsers] CPU
                             INNER JOIN [ChatPlans] CP ON CP.IdChatPlan = CPU.IdChatPlan
                             WHERE CPU.IdBillingCredit = {currentChatBillingCreditId}";
@@ -127,6 +127,27 @@ namespace Doppler.Billing.Job.Database
             var userAddOns = await conn.QueryFirstOrDefaultAsync<ChatPlanUser>(query, commandTimeout: 90);
 
             return userAddOns;
+        }
+
+        public async Task<IList<int>> GetUserIdsByClientManagerIdAsync(int clientManagerId)
+        {
+            await using var conn = _dbConnectionFactory.GetConnection();
+            var query = $@"SELECT IdUser FROM [User] WHERE IdClientManager =  {clientManagerId}";
+
+            var userIds = await conn.QueryAsync<int>(query, commandTimeout: 90);
+
+            return userIds.ToList();
+        }
+
+
+        public async Task<decimal> GetCurrenyRate(int from, int to)
+        {
+            await using var conn = _dbConnectionFactory.GetConnection();
+            var query = $@"SELECT TOP 1 Rate FROM dbo.CurrencyRate WHERE active = 1 AND IdCurrencyTypeFrom = {from} AND IdCurrencyTypeTo = {to} ORDER BY UTCFromDate DESC";
+
+            var currency = await conn.QueryFirstOrDefaultAsync<decimal>(query, commandTimeout: 90);
+
+            return currency;
         }
     }
 }

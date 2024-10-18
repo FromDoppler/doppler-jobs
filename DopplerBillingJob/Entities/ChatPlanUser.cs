@@ -8,5 +8,6 @@
         public decimal AdditionalConversation {  get; set; }
         public decimal Fee { get; set; }
         public int ConversationQty {  get; set; }
+        public bool IsCustom { get; set; }
     }
 }

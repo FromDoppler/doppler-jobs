@@ -15,5 +15,6 @@ namespace CrossCutting.DopplerSapService.Entities
         public int ExtraQty { get; set; }
         public double ExtraFee { get; set; }
         public double ExtraFeePerUnit { get; set; }
+        public bool IsCustom { get; set; }
     }
 }
