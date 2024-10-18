@@ -1,5 +1,6 @@
 ﻿using CrossCutting.DopplerSapService.Entities;
 using Doppler.Billing.Job.Entities;
+using Doppler.Billing.Job.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
