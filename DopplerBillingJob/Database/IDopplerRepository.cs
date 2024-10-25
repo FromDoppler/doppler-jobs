@@ -14,5 +14,6 @@ namespace Doppler.Billing.Job.Database
         public Task<ChatPlanUser> GetActiveChatPlanByIdBillingCredit(int currentChatBillingCreditId);
         public Task<IList<int>> GetUserIdsByClientManagerIdAsync(int clientManagerId);
         public Task<decimal> GetCurrenyRate(int from, int to);
+        public Task<User> GetUserByUserIdAsync(int userId);
     }
 }

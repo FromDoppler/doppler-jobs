@@ -149,5 +149,15 @@ namespace Doppler.Billing.Job.Database
 
             return currency;
         }
+
+        public async Task<User> GetUserByUserIdAsync(int userId)
+        {
+            await using var conn = _dbConnectionFactory.GetConnection();
+            var query = $@"SELECT IdUser AS UserId, Email FROM [User] WHERE IdUser = {userId}";
+
+            var user = await conn.QueryFirstOrDefaultAsync<User>(query, commandTimeout: 90);
+
+            return user;
+        }
     }
 }
