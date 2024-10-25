@@ -44,40 +44,36 @@ namespace Doppler.Billing.Job.Mappers
 
                 if (userBilling.LandingsAmount > 0)
                 {
-                    //Get Addon details
-                    var billingCredit = await dopplerRepository.GetCurrentBIllingCreditByUserIdAsync(userBilling.Id);
-                    var addOns = await dopplerRepository.GetUserAddOnsByUserIdAsync(userBilling.Id);
-                    var additionalServices = new List<AdditionalService>();
-
-                    foreach (UserAddOn addOn in addOns)
+                    if (userBilling.PlanType != 0)
                     {
-                        if (addOn.IdAddOnType == (int)AddOnTypeEnum.Landing)
+                        var user = await dopplerRepository.GetUserByUserIdAsync(userBilling.Id);
+                        var landingAdditionalService = await GetLandingAdditionalServiceAsync(userBilling, user);
+                        if (landingAdditionalService != null)
                         {
-                            var landings = (await dopplerRepository.GetLandingPlansByBillingCreditIdAsync(addOn.IdCurrentBillingCredit)).ToList();
-                            var additionalService = new AdditionalService
-                            {
-                                Type = AdditionalServiceTypeEnum.Landing,
-                                Charge = (double)0,
-                                Packs = landings.Select(l => new Pack
-                                {
-                                    Amount = Convert.ToDecimal(l.Fee) * (billingCredit.TotalMonthPlan ?? 1),
-                                    PackId = l.IdLandingPlan,
-                                    Quantity = l.PackQty
-                                }).ToList()
-                            };
-
-                            additionalServices.Add(additionalService);
+                            billingRequest.AdditionalServices.Add(landingAdditionalService);
                         }
                     }
-
-                    
+                    else
+                    {
+                        var userIds = await dopplerRepository.GetUserIdsByClientManagerIdAsync(userBilling.Id);
+                        foreach (var userId in userIds)
+                        {
+                            var user = await dopplerRepository.GetUserByUserIdAsync(userId);
+                            var landingAdditionalService = await GetLandingAdditionalServiceAsync(userBilling, user);
+                            if (landingAdditionalService != null)
+                            {
+                                billingRequest.AdditionalServices.Add(landingAdditionalService);
+                            }
+                        }
+                    }
                 }
 
                 if (userBilling.ConversationsAmount > 0 || !string.IsNullOrEmpty(userBilling.ConversationsExtra))
                 {
                     if (userBilling.PlanType != 0)
                     {
-                        var conversationAdditionalService = await GetConversationAdditionalServiceAsync(userBilling, userBilling.Id, AccountTypeEnum.User);
+                        var user = await dopplerRepository.GetUserByUserIdAsync(userBilling.Id);
+                        var conversationAdditionalService = await GetConversationAdditionalServiceAsync(userBilling, user, AccountTypeEnum.User);
                         if (conversationAdditionalService != null)
                         {
                             billingRequest.AdditionalServices.Add(conversationAdditionalService);
@@ -88,7 +84,8 @@ namespace Doppler.Billing.Job.Mappers
                         var userIds = await dopplerRepository.GetUserIdsByClientManagerIdAsync(userBilling.Id);
                         foreach (var userId in userIds)
                         {
-                            var conversationAdditionalService = await GetConversationAdditionalServiceAsync(userBilling, userId, AccountTypeEnum.CM);
+                            var user = await dopplerRepository.GetUserByUserIdAsync(userId);
+                            var conversationAdditionalService = await GetConversationAdditionalServiceAsync(userBilling, user, AccountTypeEnum.CM);
                             if (conversationAdditionalService != null)
                             {
                                 billingRequest.AdditionalServices.Add(conversationAdditionalService);
@@ -103,9 +100,39 @@ namespace Doppler.Billing.Job.Mappers
             return result;
         }
 
-        private async Task<AdditionalService> GetConversationAdditionalServiceAsync(UserBilling userBilling, int userId, AccountTypeEnum accountType)
+        private async Task<AdditionalService> GetLandingAdditionalServiceAsync(UserBilling userBilling, User user)
         {
-            var conversationsAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(userId, (int)AddOnTypeEnum.Chat);
+            //Get Addon details
+            var landingAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(user.UserId, (int)AddOnTypeEnum.Landing);
+
+            if (landingAddOn != null)
+            {
+                var billingCredit = await dopplerRepository.GetCurrentBIllingCreditByUserIdAsync(user.UserId);
+                var landings = (await dopplerRepository.GetLandingPlansByBillingCreditIdAsync(landingAddOn.IdCurrentBillingCredit)).ToList();
+                var rate = userBilling.Currency > 0 ? await dopplerRepository.GetCurrenyRate(0, userBilling.Currency ?? 0) : 1;
+
+                var additionalService = new AdditionalService
+                {
+                    UserEmail = user.Email,
+                    Type = AdditionalServiceTypeEnum.Landing,
+                    Charge = (double)0,
+                    Packs = landings.Select(l => new Pack
+                    {
+                        Amount = Convert.ToDecimal(l.Fee) * (billingCredit.TotalMonthPlan ?? 1) * rate,
+                        PackId = l.IdLandingPlan,
+                        Quantity = l.PackQty
+                    }).ToList()
+                };
+
+                return additionalService;
+            }
+
+            return null;
+        }
+
+        private async Task<AdditionalService> GetConversationAdditionalServiceAsync(UserBilling userBilling, User user, AccountTypeEnum accountType)
+        {
+            var conversationsAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(user.UserId, (int)AddOnTypeEnum.Chat);
             if (conversationsAddOn != null)
             {
                 var chatPlanUser = await dopplerRepository.GetActiveChatPlanByIdBillingCredit(conversationsAddOn.IdCurrentBillingCredit);
@@ -130,7 +157,8 @@ namespace Doppler.Billing.Job.Mappers
                     ExtraFeePerUnit = chatPlanUser != null ? (double)chatPlanUser.AdditionalConversation : 0,
                     ConversationQty = chatPlanUser != null ? chatPlanUser.ConversationQty : 0,
                     ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0,
-                    IsCustom = chatPlanUser.IsCustom
+                    IsCustom = chatPlanUser.IsCustom,
+                    UserEmail = user.Email
                 };
 
                 return additionalService;
