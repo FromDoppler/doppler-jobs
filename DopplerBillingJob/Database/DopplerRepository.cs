@@ -129,6 +129,19 @@ namespace Doppler.Billing.Job.Database
             return userAddOns;
         }
 
+        public async Task<OnSitePlanUser> GetActiveOnSitePlanByIdBillingCredit(int currentOnSiteBillingCreditId)
+        {
+            await using var conn = _dbConnectionFactory.GetConnection();
+            var query = $@"SELECT OSPU.IdUser, OSPU.IdBillingCredit, OSPU.IdOnSitePlan, OSP.AdditionalPrint, OSP.Fee, OSP.PrintQty, OSP.Custom AS IsCustom
+                            FROM [OnSitePlanUser] OSPU
+                            INNER JOIN [OnSitePlan] OSP ON OSP.IdOnSitePlan = OSPU.IdOnSitePlan
+                            WHERE OSPU.IdBillingCredit = {currentOnSiteBillingCreditId}";
+
+            var userAddOns = await conn.QueryFirstOrDefaultAsync<OnSitePlanUser>(query, commandTimeout: 90);
+
+            return userAddOns;
+        }
+
         public async Task<IList<int>> GetUserIdsByClientManagerIdAsync(int clientManagerId)
         {
             await using var conn = _dbConnectionFactory.GetConnection();

@@ -6,6 +6,7 @@ namespace CrossCutting.DopplerSapService.Entities
     public class AdditionalService
     {
         public int? ConversationQty { get; set; }
+        public int? PrintQty { get; set; }
         public double Charge { get; set; }
         public double PlanFee { get; set; }
         public IList<Pack> Packs { get; set; }
