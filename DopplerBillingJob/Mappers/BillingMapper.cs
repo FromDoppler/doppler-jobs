@@ -94,6 +94,32 @@ namespace Doppler.Billing.Job.Mappers
                     }
                 }
 
+                if (userBilling.PrintsAmount > 0 || !string.IsNullOrEmpty(userBilling.PrintsExtra))
+                {
+                    if (userBilling.PlanType != 0)
+                    {
+                        var user = await dopplerRepository.GetUserByUserIdAsync(userBilling.Id);
+                        var onSiteAdditionalService = await GetOnSiteAdditionalServiceAsync(userBilling, user, AccountTypeEnum.User);
+                        if (onSiteAdditionalService != null)
+                        {
+                            billingRequest.AdditionalServices.Add(onSiteAdditionalService);
+                        }
+                    }
+                    else
+                    {
+                        var userIds = await dopplerRepository.GetUserIdsByClientManagerIdAsync(userBilling.Id);
+                        foreach (var userId in userIds)
+                        {
+                            var user = await dopplerRepository.GetUserByUserIdAsync(userId);
+                            var onSiteAdditionalService = await GetOnSiteAdditionalServiceAsync(userBilling, user, AccountTypeEnum.CM);
+                            if (onSiteAdditionalService != null)
+                            {
+                                billingRequest.AdditionalServices.Add(onSiteAdditionalService);
+                            }
+                        }
+                    }
+                }
+
                 result.Add(billingRequest);
             }
 
@@ -158,6 +184,43 @@ namespace Doppler.Billing.Job.Mappers
                     ConversationQty = chatPlanUser != null ? chatPlanUser.ConversationQty : 0,
                     ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0,
                     IsCustom = chatPlanUser.IsCustom,
+                    UserEmail = user.Email
+                };
+
+                return additionalService;
+            }
+
+            return null;
+        }
+
+        private async Task<AdditionalService> GetOnSiteAdditionalServiceAsync(UserBilling userBilling, User user, AccountTypeEnum accountType)
+        {
+            var onSiteAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(user.UserId, (int)AddOnTypeEnum.OnSite);
+            if (onSiteAddOn != null)
+            {
+                var onSitePlanUser = await dopplerRepository.GetActiveOnSitePlanByIdBillingCredit(onSiteAddOn.IdCurrentBillingCredit);
+                var totalMonth = userBilling.Periodicity == 0 ? 1 :
+                                 userBilling.Periodicity == 1 ? 3 :
+                                 userBilling.Periodicity == 2 ? 6 :
+                                 userBilling.Periodicity == 3 ? 12 :
+                                 1;
+
+                var rate = userBilling.Currency > 0 ? await dopplerRepository.GetCurrenyRate(0, userBilling.Currency ?? 0) : 1;
+
+                var additionalService = new AdditionalService
+                {
+                    Type = AdditionalServiceTypeEnum.OnSite,
+                    Charge = accountType == AccountTypeEnum.User ?
+                                            (double)userBilling.PrintsAmount :
+                                            onSitePlanUser != null ? ((double)onSitePlanUser.Fee * totalMonth) * (double)rate : 0,
+                    PlanFee = onSitePlanUser != null ? ((double)onSitePlanUser.Fee * totalMonth) * (double)rate : 0,
+                    ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Month,
+                    ExtraPeriodYear = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Year,
+                    ExtraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? Convert.ToDouble(userBilling.PrintsExtraAmount) : 0,
+                    ExtraFeePerUnit = onSitePlanUser != null ? (double)onSitePlanUser.AdditionalPrint : 0,
+                    PrintQty = onSitePlanUser != null ? onSitePlanUser.PrintQty : 0,
+                    ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0,
+                    IsCustom = onSitePlanUser.IsCustom,
                     UserEmail = user.Email
                 };
 
