@@ -1,12 +1,22 @@
 using CrossCutting;
+using CrossCutting.Authorization;
+using CrossCutting.DopplerPopUpHubService;
+using CrossCutting.DopplerPopUpHubService.Settings;
 using CrossCutting.DopplerSapService;
 using CrossCutting.DopplerSapService.Settings;
+using CrossCutting.EmailSenderService;
 using Doppler.Billing.Job;
 using Doppler.Billing.Job.Database;
+using Doppler.Billing.Job.Mappers;
 using Doppler.Billing.Job.Settings;
 using Doppler.Currency.Job;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Doppler.Currency.Job.Settings;
+using Doppler.Database;
+using Doppler.Notifications.Job;
+using Doppler.SurplusAddOn.Job;
+using Doppler.SurplusAddOn.Job.Utils;
+using Flurl.Http.Configuration;
 using Hangfire;
 using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Builder;
@@ -23,12 +33,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
-using CrossCutting.Authorization;
-using Doppler.Database;
-using Doppler.Notifications.Job;
-using CrossCutting.EmailSenderService;
-using Flurl.Http.Configuration;
-using Doppler.Billing.Job.Mappers;
 
 namespace Doppler.Jobs.Server
 {
@@ -83,6 +87,11 @@ namespace Doppler.Jobs.Server
             services.AddTransient<IBillingMapper, BillingMapper>();
 
             services.AddTransient<Notifications.Job.Database.IDopplerRepository, Notifications.Job.Database.DopplerRepository>();
+
+            services.Configure<DopplerPopUpHubServiceConfiguration>(Configuration.GetSection(nameof(DopplerPopUpHubServiceConfiguration)));
+            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+            services.AddTransient<IDopplerPopUpHubService, DopplerPopUpHubService>();
+            services.AddTransient<SurplusAddOn.Job.Database.IDopplerRepository, SurplusAddOn.Job.Database.DopplerRepository>();
 
             ConfigureJobsScheduler();
 
@@ -176,6 +185,12 @@ namespace Doppler.Jobs.Server
                 Configuration["Jobs:DopplerFreeTrialExpiredNotificationJobSettings:Identifier"],
                 job => job.Run(),
                 Configuration["Jobs:DopplerFreeTrialExpiredNotificationJobSettings:IntervalCronExpression"],
+                TimeZoneInfo.FindSystemTimeZoneById(tz));
+
+            RecurringJob.AddOrUpdate<DopplerSurplusOnSiteJob>(
+                Configuration["Jobs:DopplerSurplusOnSiteJobSettings:Identifier"],
+                job => job.Run(),
+                Configuration["Jobs:DopplerSurplusOnSiteJobSettings:IntervalCronExpression"],
                 TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }
