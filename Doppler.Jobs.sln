@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29905.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Doppler.Jobs.Server", "DopplerJobsServer\Doppler.Jobs.Server.csproj", "{017A9D5D-2C57-47DA-8A36-C5989EA7C46E}"
 EndProject
@@ -27,7 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Doppler.Database", "Doppler
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NotificationsJob", "NotificationsJob", "{FA59309C-5459-420C-837B-F4CB9F144D41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppler.Notifications.Job", "NotificationsJob\Doppler.Notifications.Job.csproj", "{3A5FCFE1-62A5-40D7-B279-195D5BA079E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Doppler.Notifications.Job", "NotificationsJob\Doppler.Notifications.Job.csproj", "{3A5FCFE1-62A5-40D7-B279-195D5BA079E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SurplusAddOnJob", "SurplusAddOnJob", "{6943A1B7-5430-4BD9-978D-75EE52F321A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppler.SurplusAddOn.Job", "SurplusAddOnJob\Doppler.SurplusAddOn.Job.csproj", "{68F6345C-2233-48D5-BEAB-5382309D2BCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +67,10 @@ Global
 		{3A5FCFE1-62A5-40D7-B279-195D5BA079E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A5FCFE1-62A5-40D7-B279-195D5BA079E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A5FCFE1-62A5-40D7-B279-195D5BA079E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68F6345C-2233-48D5-BEAB-5382309D2BCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68F6345C-2233-48D5-BEAB-5382309D2BCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68F6345C-2233-48D5-BEAB-5382309D2BCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68F6345C-2233-48D5-BEAB-5382309D2BCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +84,8 @@ Global
 		{E782F94C-FA23-4841-98F8-EDC2F5FEE69C} = {D4194301-86DC-4767-BC90-984A0A46988B}
 		{FA59309C-5459-420C-837B-F4CB9F144D41} = {C8E8A187-BD41-4F7E-BB9C-B3F916661B6E}
 		{3A5FCFE1-62A5-40D7-B279-195D5BA079E2} = {FA59309C-5459-420C-837B-F4CB9F144D41}
+		{6943A1B7-5430-4BD9-978D-75EE52F321A0} = {C8E8A187-BD41-4F7E-BB9C-B3F916661B6E}
+		{68F6345C-2233-48D5-BEAB-5382309D2BCE} = {6943A1B7-5430-4BD9-978D-75EE52F321A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CD22888-2930-4C36-A4FD-4CCE20C064AF}

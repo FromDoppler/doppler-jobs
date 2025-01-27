@@ -7,6 +7,7 @@ COPY ["CrossCutting/CrossCutting.csproj", "CrossCutting/"]
 COPY ["DopplerCurrencyJob/Doppler.Currency.Job.csproj", "DopplerCurrencyJob/"]
 COPY ["DopplerBillingJob/Doppler.Billing.Job.csproj", "DopplerBillingJob/"]
 COPY ["NotificationsJob/Doppler.Notifications.Job.csproj", "NotificationsJob/"]
+COPY ["SurplusAddOnJob/Doppler.SurplusAddOn.Job.csproj", "SurplusAddOnJob/"]
 COPY ["DopplerJobTest/Doppler.Jobs.Test.csproj", "DopplerJobTest/"]
 RUN dotnet restore
 
