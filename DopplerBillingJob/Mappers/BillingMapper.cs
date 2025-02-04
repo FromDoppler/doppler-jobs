@@ -180,7 +180,7 @@ namespace Doppler.Billing.Job.Mappers
                     ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Month,
                     ExtraPeriodYear = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Year,
                     ExtraFee = !string.IsNullOrEmpty(userBilling.ConversationsExtraAmount) ? Convert.ToDouble(userBilling.ConversationsExtraAmount) : 0,
-                    ExtraFeePerUnit = chatPlanUser != null ? (double)chatPlanUser.AdditionalConversation : 0,
+                    ExtraFeePerUnit = chatPlanUser != null ? Math.Round((double)chatPlanUser.AdditionalConversation * (double)rate, 4) : 0,
                     ConversationQty = chatPlanUser != null ? chatPlanUser.ConversationQty : 0,
                     ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0,
                     IsCustom = chatPlanUser.IsCustom,
@@ -217,9 +217,9 @@ namespace Doppler.Billing.Job.Mappers
                     ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Month,
                     ExtraPeriodYear = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Year,
                     ExtraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? Convert.ToDouble(userBilling.PrintsExtraAmount) : 0,
-                    ExtraFeePerUnit = onSitePlanUser != null ? (double)onSitePlanUser.AdditionalPrint : 0,
+                    ExtraFeePerUnit = onSitePlanUser != null ? Math.Round((double)onSitePlanUser.AdditionalPrint * (double)rate, 4) : 0,
                     PrintQty = onSitePlanUser != null ? onSitePlanUser.PrintQty : 0,
-                    ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0,
+                    ExtraQty = !string.IsNullOrEmpty(userBilling.PrintsExtra) ? Convert.ToInt32(userBilling.PrintsExtra) : 0,
                     IsCustom = onSitePlanUser.IsCustom,
                     UserEmail = user.Email
                 };
