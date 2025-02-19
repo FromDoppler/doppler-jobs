@@ -88,10 +88,15 @@ namespace Doppler.Jobs.Server
 
             services.AddTransient<Notifications.Job.Database.IDopplerRepository, Notifications.Job.Database.DopplerRepository>();
 
+            //SurplusAddOn Jobs
+            services.AddTransient<SurplusAddOn.Job.Database.IDopplerRepository, SurplusAddOn.Job.Database.DopplerRepository>();
             services.Configure<DopplerPopUpHubServiceConfiguration>(Configuration.GetSection(nameof(DopplerPopUpHubServiceConfiguration)));
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddTransient<IDopplerPopUpHubService, DopplerPopUpHubService>();
-            services.AddTransient<SurplusAddOn.Job.Database.IDopplerRepository, SurplusAddOn.Job.Database.DopplerRepository>();
+
+            services.Configure<DopplerBeplicServiceConfiguration>(Configuration.GetSection(nameof(DopplerBeplicServiceConfiguration)));
+            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+            services.AddTransient<IDopplerBeplicService, DopplerBeplicService>();
 
             ConfigureJobsScheduler();
 
@@ -191,6 +196,12 @@ namespace Doppler.Jobs.Server
                 Configuration["Jobs:DopplerSurplusOnSiteJobSettings:Identifier"],
                 job => job.Run(),
                 Configuration["Jobs:DopplerSurplusOnSiteJobSettings:IntervalCronExpression"],
+                TimeZoneInfo.FindSystemTimeZoneById(tz));
+
+            RecurringJob.AddOrUpdate<DopplerSurplusConversationsJob>(
+                Configuration["Jobs:DopplerSurplusConversationsJobSettings:Identifier"],
+                job => job.Run(),
+                Configuration["Jobs:DopplerSurplusConversationsJobSettings:IntervalCronExpression"],
                 TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }
