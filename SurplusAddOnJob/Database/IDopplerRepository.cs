@@ -4,8 +4,6 @@ namespace Doppler.SurplusAddOn.Job.Database
 {
     public interface IDopplerRepository
     {
-        Task<IList<OnSiteAddon>> GetUsersWithActiveOnsitePlanAsync();
-        Task<OnSitePlan> GetActiveOnsitePlanByUserIdAsync(int userId);
         Task<IList<UserAddOn>> GetUsersWithActiveAddOnByAddOnTypeAsync(int addOnTypeId);
         Task<Entities.SurplusAddOn> GetByUserIdAddOnTypeIdAndPeridoAsync(int userId, int addOnTypeId, string period);
         Task InsertSurplusAddOnAsync(int userId, int addOnTypeId, DateTime date, string period, int quantity, decimal additionalPrice, decimal total);
