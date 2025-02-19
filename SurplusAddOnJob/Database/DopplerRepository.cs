@@ -19,32 +19,6 @@ namespace Doppler.SurplusAddOn.Job.Database
             this.dbConnectionFactory = dbConnectionFactory;
         }
 
-        public async Task<IList<OnSiteAddon>> GetUsersWithActiveOnsitePlanAsync()
-        {
-            logger.LogInformation("Getting database connection.");
-
-            try
-            {
-                await using var conn = dbConnectionFactory.GetConnection();
-                var query = @$"SELECT UA.IdUser AS UserId, U.Email
-                                FROM [dbo].[UserAddOn] UA
-                                INNER JOIN [BillingCredits] BC ON BC.IdBillingCredit = UA.IdCurrentBillingCredit
-                                INNER JOIN [User] U ON U.IdUser = UA.IdUser
-                                WHERE UA.IdAddOnType = 3 AND BC.IdBillingCreditType != 36";
-
-                logger.LogInformation("Sending SQL sentence to database server.");
-
-                var result = await conn.QueryAsync<OnSiteAddon>(query);
-
-                return result.ToList();
-            }
-            catch (Exception e)
-            {
-                logger.LogCritical(e, "Error sending SQL sentence to database server.");
-                throw;
-            }
-        }
-
         public async Task<IList<UserAddOn>> GetUsersWithActiveAddOnByAddOnTypeAsync(int addOnTypeId)
         {
             logger.LogInformation("Getting database connection.");
@@ -85,34 +59,6 @@ namespace Doppler.SurplusAddOn.Job.Database
                 var result = await conn.QueryAsync<UserAddOn>(query);
 
                 return result.ToList();
-            }
-            catch (Exception e)
-            {
-                logger.LogCritical(e, "Error sending SQL sentence to database server.");
-                throw;
-            }
-        }
-
-        public async Task<OnSitePlan> GetActiveOnsitePlanByUserIdAsync(int userId)
-        {
-            logger.LogInformation("Getting database connection.");
-
-            try
-            {
-                await using var conn = dbConnectionFactory.GetConnection();
-                var query = @$"SELECT OSP.PrintQty, OSP.AdditionalPrint
-                                FROM [dbo].[UserAddOn] UA
-                                INNER JOIN [BillingCredits] BC ON BC.IdBillingCredit = UA.IdCurrentBillingCredit
-                                INNER JOIN [User] U ON U.IdUser = UA.IdUser
-                                INNER JOIN [OnSitePlanUser] OSPU ON OSPU.IdBillingCredit = UA.IdCurrentBillingCredit
-                                INNER JOIN [OnSitePlan] OSP ON OSP.IdOnSitePlan = OSPU.IdOnSitePlan
-                                WHERE UA.IdAddOnType = 3 AND BC.IdBillingCreditType != 36 AND UA.IdUser = {userId}";
-
-                logger.LogInformation("Sending SQL sentence to database server.");
-
-                var result = await conn.QueryFirstOrDefaultAsync<OnSitePlan>(query);
-
-                return result;
             }
             catch (Exception e)
             {
