@@ -172,5 +172,29 @@ namespace Doppler.Billing.Job.Database
 
             return user;
         }
+
+        public async Task<SurplusAddOn> GetByUserIdAddOnTypeIdAndPeridoAsync(int userId, int addOnTypeId, string period)
+        {
+            _logger.LogInformation("Getting database connection.");
+
+            try
+            {
+                await using var conn = _dbConnectionFactory.GetConnection();
+                var query = @$"SELECT [IdSurplusAddOn],[IdUser],[IdAddOnType],[Date],[Period],[Quantity],[AdditionalPrice],[Total]
+                               FROM [dbo].[SurplusAddOn]
+                               WHERE IdAddOnType = {addOnTypeId} AND IdUser = {userId} AND Period = '{period}'";
+
+                _logger.LogInformation("Sending SQL sentence to database server.");
+
+                var result = await conn.QueryFirstOrDefaultAsync<Entities.SurplusAddOn>(query);
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e, "Error sending SQL sentence to database server.");
+                throw;
+            }
+        }
     }
 }

@@ -169,6 +169,15 @@ namespace Doppler.Billing.Job.Mappers
                                  1;
 
                 var rate = userBilling.Currency > 0 ? await dopplerRepository.GetCurrenyRate(0, userBilling.Currency ?? 0) : 1;
+                var extraFee = !string.IsNullOrEmpty(userBilling.ConversationsExtraAmount) ? Convert.ToDouble(userBilling.ConversationsExtraAmount.Replace(".", ",")) : 0;
+                var extraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0;
+
+                if (accountType == AccountTypeEnum.CM)
+                {
+                    var surplus = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)AddOnTypeEnum.Chat, userBilling.ConversationsExtraMonth);
+                    extraFee = surplus != null ? (double)surplus.Total * (double)rate : 0;
+                    extraQty = surplus != null ? surplus.Quantity : 0;
+                }
 
                 var additionalService = new AdditionalService
                 {
@@ -179,10 +188,10 @@ namespace Doppler.Billing.Job.Mappers
                     PlanFee = chatPlanUser != null ? ((double)chatPlanUser.Fee * totalMonth) * (double)rate : 0,
                     ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Month,
                     ExtraPeriodYear = string.IsNullOrEmpty(userBilling.ConversationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.ConversationsExtraMonth).Year,
-                    ExtraFee = !string.IsNullOrEmpty(userBilling.ConversationsExtraAmount) ? Convert.ToDouble(userBilling.ConversationsExtraAmount) : 0,
+                    ExtraFee = extraFee,
                     ExtraFeePerUnit = chatPlanUser != null ? Math.Round((double)chatPlanUser.AdditionalConversation * (double)rate, 4) : 0,
                     ConversationQty = chatPlanUser != null ? chatPlanUser.ConversationQty : 0,
-                    ExtraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0,
+                    ExtraQty = extraQty,
                     IsCustom = chatPlanUser.IsCustom,
                     UserEmail = user.Email
                 };
@@ -206,6 +215,15 @@ namespace Doppler.Billing.Job.Mappers
                                  1;
 
                 var rate = userBilling.Currency > 0 ? await dopplerRepository.GetCurrenyRate(0, userBilling.Currency ?? 0) : 1;
+                var extraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? Convert.ToDouble(userBilling.PrintsExtraAmount.Replace(".", ",")) : 0;
+                var extraQty = !string.IsNullOrEmpty(userBilling.PrintsExtra) ? Convert.ToInt32(userBilling.PrintsExtra) : 0;
+
+                if (accountType == AccountTypeEnum.CM)
+                {
+                    var surplus = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)AddOnTypeEnum.OnSite, userBilling.PrintsExtraMonth);
+                    extraFee = surplus != null ? (double)surplus.Total * (double)rate : 0;
+                    extraQty = surplus != null ? surplus.Quantity : 0;
+                }
 
                 var additionalService = new AdditionalService
                 {
@@ -216,10 +234,10 @@ namespace Doppler.Billing.Job.Mappers
                     PlanFee = onSitePlanUser != null ? ((double)onSitePlanUser.Fee * totalMonth) * (double)rate : 0,
                     ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Month,
                     ExtraPeriodYear = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Year,
-                    ExtraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? Convert.ToDouble(userBilling.PrintsExtraAmount) : 0,
+                    ExtraFee = extraFee,
                     ExtraFeePerUnit = onSitePlanUser != null ? Math.Round((double)onSitePlanUser.AdditionalPrint * (double)rate, 4) : 0,
                     PrintQty = onSitePlanUser != null ? onSitePlanUser.PrintQty : 0,
-                    ExtraQty = !string.IsNullOrEmpty(userBilling.PrintsExtra) ? Convert.ToInt32(userBilling.PrintsExtra) : 0,
+                    ExtraQty = extraQty,
                     IsCustom = onSitePlanUser.IsCustom,
                     UserEmail = user.Email
                 };

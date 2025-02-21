@@ -16,5 +16,6 @@ namespace Doppler.Billing.Job.Database
         public Task<IList<int>> GetUserIdsByClientManagerIdAsync(int clientManagerId);
         public Task<decimal> GetCurrenyRate(int from, int to);
         public Task<User> GetUserByUserIdAsync(int userId);
+        Task<SurplusAddOn> GetByUserIdAddOnTypeIdAndPeridoAsync(int userId, int addOnTypeId, string period);
     }
 }
