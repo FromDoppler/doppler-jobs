@@ -52,26 +52,26 @@ namespace Doppler.SurplusAddOn.Job
 
                 logger.LogInformation($"Current conversations: {response} from Doppler Beplic api.");
 
-                //if (response > 0)
-                //{
-                //    if (user.Qty < response)
-                //    {
-                //        var surplus = response - user.Qty;
-                //        CultureInfo ci = new("en-US");
-                //        var period = dateFrom.ToString("yyyy-MMM", ci);
+                if (response > 0)
+                {
+                    if (user.Qty < response)
+                    {
+                        var surplus = response - user.Qty;
+                        CultureInfo ci = new("en-US");
+                        var period = dateFrom.ToString("yyyy-MMM", ci);
 
-                //        var surplusAddOn = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)AddOnTypeEnum.Chat, period);
+                        var surplusAddOn = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)AddOnTypeEnum.Chat, period);
 
-                //        if (surplusAddOn == null)
-                //        {
-                //            await dopplerRepository.InsertSurplusAddOnAsync(user.UserId, (int)AddOnTypeEnum.Chat, currentDate, period, surplus, user.AdditionalPrice, surplus * user.AdditionalPrice);
-                //        }
-                //        else
-                //        {
-                //            await dopplerRepository.UpdateSurplusAddOnAsync(user.UserId, (int)AddOnTypeEnum.Chat, currentDate, period, surplus, user.AdditionalPrice, surplus * user.AdditionalPrice);
-                //        }
-                //    }
-                //}
+                        if (surplusAddOn == null)
+                        {
+                            await dopplerRepository.InsertSurplusAddOnAsync(user.UserId, (int)AddOnTypeEnum.Chat, currentDate, period, surplus, user.AdditionalPrice, surplus * user.AdditionalPrice);
+                        }
+                        else
+                        {
+                            await dopplerRepository.UpdateSurplusAddOnAsync(user.UserId, (int)AddOnTypeEnum.Chat, currentDate, period, surplus, user.AdditionalPrice, surplus * user.AdditionalPrice);
+                        }
+                    }
+                }
             }
         }
     }
