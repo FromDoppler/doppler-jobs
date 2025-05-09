@@ -129,19 +129,6 @@ namespace Doppler.Billing.Job.Database
             return userAddOns;
         }
 
-        public async Task<OnSitePlanUser> GetActiveOnSitePlanByIdBillingCredit(int currentOnSiteBillingCreditId)
-        {
-            await using var conn = _dbConnectionFactory.GetConnection();
-            var query = $@"SELECT OSPU.IdUser, OSPU.IdBillingCredit, OSPU.IdOnSitePlan, OSP.AdditionalPrint, OSP.Fee, OSP.PrintQty, OSP.Custom AS IsCustom
-                            FROM [OnSitePlanUser] OSPU
-                            INNER JOIN [OnSitePlan] OSP ON OSP.IdOnSitePlan = OSPU.IdOnSitePlan
-                            WHERE OSPU.IdBillingCredit = {currentOnSiteBillingCreditId}";
-
-            var userAddOns = await conn.QueryFirstOrDefaultAsync<OnSitePlanUser>(query, commandTimeout: 90);
-
-            return userAddOns;
-        }
-
         public async Task<IList<int>> GetUserIdsByClientManagerIdAsync(int clientManagerId)
         {
             await using var conn = _dbConnectionFactory.GetConnection();
@@ -151,7 +138,6 @@ namespace Doppler.Billing.Job.Database
 
             return userIds.ToList();
         }
-
 
         public async Task<decimal> GetCurrenyRate(int from, int to)
         {
@@ -195,6 +181,37 @@ namespace Doppler.Billing.Job.Database
                 _logger.LogCritical(e, "Error sending SQL sentence to database server.");
                 throw;
             }
+        }
+
+        public async Task<AddOnPlanUser> GetActiveAddOnPlanByIdBillingCreditAndAddOnType(int currentOnSiteBillingCreditId, AddOnTypeEnum addOnType)
+        {
+            await using var conn = _dbConnectionFactory.GetConnection();
+            var query = string.Empty;
+
+            switch(addOnType)
+            {
+                case AddOnTypeEnum.OnSite:
+                    query = $@"SELECT OSPU.IdUser, OSPU.IdBillingCredit, OSPU.IdOnSitePlan AS IdAddOnPlan, 
+                                      OSP.AdditionalPrint AS Additional, OSP.Fee, OSP.PrintQty AS Quantity, OSP.Custom AS IsCustom
+                            FROM [OnSitePlanUser] OSPU
+                            INNER JOIN [OnSitePlan] OSP ON OSP.IdOnSitePlan = OSPU.IdOnSitePlan
+                            WHERE OSPU.IdBillingCredit = {currentOnSiteBillingCreditId}";
+                    break;
+                case AddOnTypeEnum.PushNotification:
+                    query = $@"SELECT PNPU.IdUser, PNPU.IdBillingCredit, PNPU.IdPushNotificationPlan AS IdAddOnPlan, 
+                                      PNP.Additional AS Additional, PNP.Fee, PNP.Quantity AS Quantity, PNP.Custom AS IsCustom
+                            FROM [PushNotificationPlanUser] PNPU
+                            INNER JOIN [PushNotificationPlan] PNP ON PNP.IdPushNotificationPlan = PNPU.IdPushNotificationPlan
+                            WHERE PNPU.IdBillingCredit = {currentOnSiteBillingCreditId}";
+                    break;
+                default:
+                    query = string.Empty;
+                    break;
+            }
+
+            var userAddOns = await conn.QueryFirstOrDefaultAsync<AddOnPlanUser>(query, commandTimeout: 90);
+
+            return userAddOns;
         }
     }
 }

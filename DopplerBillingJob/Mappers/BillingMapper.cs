@@ -99,7 +99,7 @@ namespace Doppler.Billing.Job.Mappers
                     if (userBilling.PlanType != 0)
                     {
                         var user = await dopplerRepository.GetUserByUserIdAsync(userBilling.Id);
-                        var onSiteAdditionalService = await GetOnSiteAdditionalServiceAsync(userBilling, user, AccountTypeEnum.User);
+                        var onSiteAdditionalService = await GetAddOnAdditionalServiceByAddOnTypeAsync(userBilling, user, AccountTypeEnum.User, AddOnTypeEnum.OnSite);
                         if (onSiteAdditionalService != null)
                         {
                             billingRequest.AdditionalServices.Add(onSiteAdditionalService);
@@ -111,10 +111,36 @@ namespace Doppler.Billing.Job.Mappers
                         foreach (var userId in userIds)
                         {
                             var user = await dopplerRepository.GetUserByUserIdAsync(userId);
-                            var onSiteAdditionalService = await GetOnSiteAdditionalServiceAsync(userBilling, user, AccountTypeEnum.CM);
+                            var onSiteAdditionalService = await GetAddOnAdditionalServiceByAddOnTypeAsync(userBilling, user, AccountTypeEnum.CM, AddOnTypeEnum.OnSite);
                             if (onSiteAdditionalService != null)
                             {
                                 billingRequest.AdditionalServices.Add(onSiteAdditionalService);
+                            }
+                        }
+                    }
+                }
+
+                if (userBilling.PushNotificationsAmount > 0 || !string.IsNullOrEmpty(userBilling.PushNotificationsExtra))
+                {
+                    if (userBilling.PlanType != 0)
+                    {
+                        var user = await dopplerRepository.GetUserByUserIdAsync(userBilling.Id);
+                        var pushNotificationAdditionalService = await GetAddOnAdditionalServiceByAddOnTypeAsync(userBilling, user, AccountTypeEnum.User, AddOnTypeEnum.PushNotification);
+                        if (pushNotificationAdditionalService != null)
+                        {
+                            billingRequest.AdditionalServices.Add(pushNotificationAdditionalService);
+                        }
+                    }
+                    else
+                    {
+                        var userIds = await dopplerRepository.GetUserIdsByClientManagerIdAsync(userBilling.Id);
+                        foreach (var userId in userIds)
+                        {
+                            var user = await dopplerRepository.GetUserByUserIdAsync(userId);
+                            var pushNotificationAdditionalService = await GetAddOnAdditionalServiceByAddOnTypeAsync(userBilling, user, AccountTypeEnum.CM, AddOnTypeEnum.PushNotification);
+                            if (pushNotificationAdditionalService != null)
+                            {
+                                billingRequest.AdditionalServices.Add(pushNotificationAdditionalService);
                             }
                         }
                     }
@@ -202,12 +228,12 @@ namespace Doppler.Billing.Job.Mappers
             return null;
         }
 
-        private async Task<AdditionalService> GetOnSiteAdditionalServiceAsync(UserBilling userBilling, User user, AccountTypeEnum accountType)
+        private async Task<AdditionalService> GetAddOnAdditionalServiceByAddOnTypeAsync(UserBilling userBilling, User user, AccountTypeEnum accountType, AddOnTypeEnum addOnType)
         {
-            var onSiteAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(user.UserId, (int)AddOnTypeEnum.OnSite);
-            if (onSiteAddOn != null)
+            var userAddOn = await dopplerRepository.GetUserAddOnsByUserIdAndTypeAsync(user.UserId, (int)addOnType);
+            if (userAddOn != null)
             {
-                var onSitePlanUser = await dopplerRepository.GetActiveOnSitePlanByIdBillingCredit(onSiteAddOn.IdCurrentBillingCredit);
+                var addOnPlanUser = await dopplerRepository.GetActiveAddOnPlanByIdBillingCreditAndAddOnType(userAddOn.IdCurrentBillingCredit, addOnType);
                 var totalMonth = userBilling.Periodicity == 0 ? 1 :
                                  userBilling.Periodicity == 1 ? 3 :
                                  userBilling.Periodicity == 2 ? 6 :
@@ -215,30 +241,73 @@ namespace Doppler.Billing.Job.Mappers
                                  1;
 
                 var rate = userBilling.Currency > 0 ? await dopplerRepository.GetCurrenyRate(0, userBilling.Currency ?? 0) : 1;
-                var extraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? Convert.ToDouble(userBilling.PrintsExtraAmount.Replace(".", ",")) : 0;
-                var extraQty = !string.IsNullOrEmpty(userBilling.PrintsExtra) ? Convert.ToInt32(userBilling.PrintsExtra) : 0;
+                var extraFee = 0.0;
+                var extraFeePerUnit = addOnPlanUser != null ? Math.Round((double)addOnPlanUser.Additional * (double)rate, 4) : 0;
+                var extraPeriodMonth = 0;
+                var extraPeriodYear = 0;
+                var extraQty = 0;
+                var charge = 0.0;
+                var quantity = addOnPlanUser != null ? addOnPlanUser.Quantity : 0;
+                var planFee = addOnPlanUser != null ? ((double)addOnPlanUser.Fee * totalMonth) * (double)rate : 0;
+                var additionalServiceType = AdditionalServiceTypeEnum.OnSite;
 
-                if (accountType == AccountTypeEnum.CM)
+
+                switch (addOnType)
                 {
-                    var surplus = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)AddOnTypeEnum.OnSite, userBilling.PrintsExtraMonth);
-                    extraFee = surplus != null ? (double)surplus.Total * (double)rate : 0;
-                    extraQty = surplus != null ? surplus.Quantity : 0;
+                    case AddOnTypeEnum.OnSite:
+                        extraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? Convert.ToDouble(userBilling.PrintsExtraAmount.Replace(".", ",")) : 0;
+                        extraQty = !string.IsNullOrEmpty(userBilling.PrintsExtra) ? Convert.ToInt32(userBilling.PrintsExtra) : 0;
+                        extraPeriodMonth = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Month;
+                        extraPeriodYear = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Year;
+
+                        if (accountType == AccountTypeEnum.CM)
+                        {
+                            var surplus = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)addOnType, userBilling.PrintsExtraMonth);
+                            extraFee = surplus != null ? (double)surplus.Total * (double)rate : 0;
+                            extraQty = surplus != null ? surplus.Quantity : 0;
+                        }
+
+                        charge = accountType == AccountTypeEnum.User ?
+                                (double)userBilling.PrintsAmount :
+                                addOnPlanUser != null ? ((double)addOnPlanUser.Fee * totalMonth) * (double)rate : 0;
+
+                        additionalServiceType = AdditionalServiceTypeEnum.OnSite;
+
+                        break;
+                    case AddOnTypeEnum.PushNotification:
+                        extraFee = !string.IsNullOrEmpty(userBilling.PushNotificationsExtraAmount) ? Convert.ToDouble(userBilling.PushNotificationsExtraAmount.Replace(".", ",")) : 0;
+                        extraQty = !string.IsNullOrEmpty(userBilling.PushNotificationsExtra) ? Convert.ToInt32(userBilling.PushNotificationsExtra) : 0;
+                        extraPeriodMonth = string.IsNullOrEmpty(userBilling.PushNotificationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PushNotificationsExtraMonth).Month;
+                        extraPeriodYear = string.IsNullOrEmpty(userBilling.PushNotificationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PushNotificationsExtraMonth).Year;
+
+                        if (accountType == AccountTypeEnum.CM)
+                        {
+                            var surplus = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)addOnType, userBilling.PushNotificationsExtraMonth);
+                            extraFee = surplus != null ? (double)surplus.Total * (double)rate : 0;
+                            extraQty = surplus != null ? surplus.Quantity : 0;
+                        }
+
+                        charge = accountType == AccountTypeEnum.User ?
+                                (double)userBilling.PushNotificationsAmount :
+                                addOnPlanUser != null ? ((double)addOnPlanUser.Fee * totalMonth) * (double)rate : 0;
+
+                        additionalServiceType = AdditionalServiceTypeEnum.PushNotification;
+
+                        break;
                 }
 
                 var additionalService = new AdditionalService
                 {
-                    Type = AdditionalServiceTypeEnum.OnSite,
-                    Charge = accountType == AccountTypeEnum.User ?
-                                            (double)userBilling.PrintsAmount :
-                                            onSitePlanUser != null ? ((double)onSitePlanUser.Fee * totalMonth) * (double)rate : 0,
-                    PlanFee = onSitePlanUser != null ? ((double)onSitePlanUser.Fee * totalMonth) * (double)rate : 0,
-                    ExtraPeriodMonth = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Month,
-                    ExtraPeriodYear = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Year,
+                    Type = additionalServiceType,
+                    Charge = charge,
+                    PlanFee = planFee,
+                    ExtraPeriodMonth = extraPeriodMonth,
+                    ExtraPeriodYear = extraPeriodYear,
                     ExtraFee = extraFee,
-                    ExtraFeePerUnit = onSitePlanUser != null ? Math.Round((double)onSitePlanUser.AdditionalPrint * (double)rate, 4) : 0,
-                    PrintQty = onSitePlanUser != null ? onSitePlanUser.PrintQty : 0,
+                    ExtraFeePerUnit = extraFeePerUnit,
+                    Quantity = quantity,
                     ExtraQty = extraQty,
-                    IsCustom = onSitePlanUser.IsCustom,
+                    IsCustom = addOnPlanUser.IsCustom,
                     UserEmail = user.Email
                 };
 
