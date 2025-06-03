@@ -3,8 +3,10 @@ using CrossCutting.DopplerSapService.Enum;
 using Doppler.Billing.Job.Database;
 using Doppler.Billing.Job.Entities;
 using Doppler.Billing.Job.Enums;
+using Doppler.Billing.Job.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -195,7 +197,7 @@ namespace Doppler.Billing.Job.Mappers
                                  1;
 
                 var rate = userBilling.Currency > 0 ? await dopplerRepository.GetCurrenyRate(0, userBilling.Currency ?? 0) : 1;
-                var extraFee = !string.IsNullOrEmpty(userBilling.ConversationsExtraAmount) ? Convert.ToDouble(userBilling.ConversationsExtraAmount.Replace(".", ",")) : 0;
+                var extraFee = !string.IsNullOrEmpty(userBilling.ConversationsExtraAmount) ? userBilling.ConversationsExtraAmount.ToDouble() : 0;
                 var extraQty = !string.IsNullOrEmpty(userBilling.ConversationsExtra) ? Convert.ToInt32(userBilling.ConversationsExtra) : 0;
 
                 if (accountType == AccountTypeEnum.CM)
@@ -251,11 +253,10 @@ namespace Doppler.Billing.Job.Mappers
                 var planFee = addOnPlanUser != null ? ((double)addOnPlanUser.Fee * totalMonth) * (double)rate : 0;
                 var additionalServiceType = AdditionalServiceTypeEnum.OnSite;
 
-
                 switch (addOnType)
                 {
                     case AddOnTypeEnum.OnSite:
-                        extraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? Convert.ToDouble(userBilling.PrintsExtraAmount.Replace(".", ",")) : 0;
+                        extraFee = !string.IsNullOrEmpty(userBilling.PrintsExtraAmount) ? userBilling.PrintsExtraAmount.ToDouble() : 0;
                         extraQty = !string.IsNullOrEmpty(userBilling.PrintsExtra) ? Convert.ToInt32(userBilling.PrintsExtra) : 0;
                         extraPeriodMonth = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Month;
                         extraPeriodYear = string.IsNullOrEmpty(userBilling.PrintsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PrintsExtraMonth).Year;
@@ -275,7 +276,7 @@ namespace Doppler.Billing.Job.Mappers
 
                         break;
                     case AddOnTypeEnum.PushNotification:
-                        extraFee = !string.IsNullOrEmpty(userBilling.PushNotificationsExtraAmount) ? Convert.ToDouble(userBilling.PushNotificationsExtraAmount.Replace(".", ",")) : 0;
+                        extraFee = !string.IsNullOrEmpty(userBilling.PushNotificationsExtraAmount) ?userBilling.PushNotificationsExtraAmount.ToDouble() : 0;
                         extraQty = !string.IsNullOrEmpty(userBilling.PushNotificationsExtra) ? Convert.ToInt32(userBilling.PushNotificationsExtra) : 0;
                         extraPeriodMonth = string.IsNullOrEmpty(userBilling.PushNotificationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PushNotificationsExtraMonth).Month;
                         extraPeriodYear = string.IsNullOrEmpty(userBilling.PushNotificationsExtraMonth) ? 0 : Convert.ToDateTime(userBilling.PushNotificationsExtraMonth).Year;
