@@ -1,5 +1,6 @@
 using CrossCutting;
 using CrossCutting.Authorization;
+using CrossCutting.DopplerBillingUserService;
 using CrossCutting.DopplerPopUpHubService;
 using CrossCutting.DopplerPopUpHubService.Settings;
 using CrossCutting.DopplerSapService;
@@ -9,6 +10,7 @@ using Doppler.Billing.Job;
 using Doppler.Billing.Job.Database;
 using Doppler.Billing.Job.Mappers;
 using Doppler.Billing.Job.Settings;
+using Doppler.CancelAccountWithScheduleCancellation.Job;
 using Doppler.Currency.Job;
 using Doppler.Currency.Job.DopplerCurrencyService;
 using Doppler.Currency.Job.Settings;
@@ -97,6 +99,14 @@ namespace Doppler.Jobs.Server
             services.Configure<DopplerBeplicServiceConfiguration>(Configuration.GetSection(nameof(DopplerBeplicServiceConfiguration)));
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddTransient<IDopplerBeplicService, DopplerBeplicService>();
+
+            //Cancel Account Job
+            services.AddTransient<CancelAccountWithScheduleCancellation.Job.Database.IDopplerRepository, CancelAccountWithScheduleCancellation.Job.Database.DopplerRepository>();
+            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+
+            services.Configure<DopplerBillingUserServiceConfiguration>(Configuration.GetSection(nameof(DopplerBillingUserServiceConfiguration)));
+            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+            services.AddTransient<IDopplerBillingUserService, DopplerBillingUserService>();
 
             ConfigureJobsScheduler();
 
@@ -202,6 +212,12 @@ namespace Doppler.Jobs.Server
                 Configuration["Jobs:DopplerSurplusConversationsJobSettings:Identifier"],
                 job => job.Run(),
                 Configuration["Jobs:DopplerSurplusConversationsJobSettings:IntervalCronExpression"],
+                TimeZoneInfo.FindSystemTimeZoneById(tz));
+
+            RecurringJob.AddOrUpdate<DopplerCancelAccountWithScheduleCancellationJob>(
+                Configuration["Jobs:DopplerCancelAccountWithScheduleCancellationJobSettings:Identifier"],
+                job => job.Run(),
+                Configuration["Jobs:DopplerCancelAccountWithScheduleCancellationJobSettings:IntervalCronExpression"],
                 TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }

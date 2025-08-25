@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CrossCutting\CrossCutting.csproj" />
     <ProjectReference Include="..\DopplerBillingJob\Doppler.Billing.Job.csproj" />
+    <ProjectReference Include="..\DopplerCancelAccountJob\Doppler.CancelAccountWithScheduleCancellation.Job.csproj" />
     <ProjectReference Include="..\DopplerCurrencyJob\Doppler.Currency.Job.csproj" />
     <ProjectReference Include="..\NotificationsJob\Doppler.Notifications.Job.csproj" />
     <ProjectReference Include="..\SurplusAddOnJob\Doppler.SurplusAddOn.Job.csproj" />
