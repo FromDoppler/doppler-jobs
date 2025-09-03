@@ -36,22 +36,14 @@ namespace Doppler.CancelAccountWithScheduleCancellation.Job
 
             foreach (var user in usersToCancel)
             {
-                var accountCancellationReason = "OthersReason";
-
-                var accountCancellationRequest = await dopplerRepository.GetLastAccountCancellationRequestByUserIdAsync(user.UserId);
-                if (accountCancellationRequest != null)
+                var accountCancellationReasonDescription = string.Empty;
+                var accountCancellationReasonFromDB = await dopplerRepository.GetAccountCancellationReasonByIdAsync(user.AccountCancellationReasonId ?? 0);
+                if (accountCancellationReasonFromDB != null)
                 {
-                    //Cancel User
-                    var userAccountCancellationReasonId = user.UserAccountCancellationReasonId;
-
-                    if (userAccountCancellationReasonId != null)
-                    {
-                        var userAccountCancellationReason = (UserAccountCancellationReasonEnum)userAccountCancellationReasonId;
-                        accountCancellationReason = userAccountCancellationReason.ToDescription();
-                    }
+                    accountCancellationReasonDescription = accountCancellationReasonFromDB.Description;
                 }
                     
-                var response = await dopplerBillingUserService.CancelAccountAsync(user.Email, accountCancellationReason);
+                var response = await dopplerBillingUserService.CancelAccountAsync(user.Email, accountCancellationReasonDescription);
 
                 if (response)
                 {
