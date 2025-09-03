@@ -7,5 +7,6 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int? UserAccountCancellationReasonId { get; set; }
+        public int? AccountCancellationReasonId { get; set; }
     }
 }
