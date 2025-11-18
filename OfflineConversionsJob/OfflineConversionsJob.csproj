@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Google.Ads.GoogleAds" Version="24.1.0" />
+      <PackageReference Include="Hangfire.Core" Version="1.7.28" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
+    </ItemGroup>
+
+</Project>

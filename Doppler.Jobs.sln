@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DopplerCancelAccountJob", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppler.CancelAccountWithScheduleCancellation.Job", "DopplerCancelAccountJob\Doppler.CancelAccountWithScheduleCancellation.Job.csproj", "{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfflineConversionsJob", "OfflineConversionsJob\OfflineConversionsJob.csproj", "{AEA6802C-0C5E-4137-8715-5016FB3D1657}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
