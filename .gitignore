@@ -28,6 +28,9 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 .vs/
+.idea/
 #Nuget packages folder
 packages/
 /*/Hangfire.db
+*/appsettings.Secret.json
+*/Resources/Jwt/key.xml
