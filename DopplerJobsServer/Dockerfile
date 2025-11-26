@@ -12,6 +12,7 @@ COPY ["Doppler.Database/Doppler.Database.csproj", "Doppler.Database/"]
 COPY ["CrossCutting/CrossCutting.csproj", "CrossCutting/"]
 COPY ["DopplerCurrencyJob/Doppler.Currency.Job.csproj", "DopplerCurrencyJob/"]
 COPY ["DopplerCancelAccountJob/Doppler.CancelAccountWithScheduleCancellation.Job.csproj", "DopplerCancelAccountJob/"]
+COPY ["OfflineConversionsJob/OfflineConversionsJob.csproj", "OfflineConversionsJob/"]
 RUN dotnet restore "DopplerJobsServer/Doppler.Jobs.Server.csproj"
 COPY . .
 WORKDIR "/src/DopplerJobsServer"
