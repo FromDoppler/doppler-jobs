@@ -37,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DopplerCancelAccountJob", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppler.CancelAccountWithScheduleCancellation.Job", "DopplerCancelAccountJob\Doppler.CancelAccountWithScheduleCancellation.Job.csproj", "{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfflineConversionsJob", "OfflineConversionsJob\OfflineConversionsJob.csproj", "{AEA6802C-0C5E-4137-8715-5016FB3D1657}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OfflineConversionsJob", "OfflineConversionsJob", "{875349EB-F85B-4AD7-B035-3BF8A3173071}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,10 +81,10 @@ Global
 		{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AEA6802C-0C5E-4137-8715-5016FB3D1657}.Release|Any CPU.Build.0 = Release|Any CPU
+		{875349EB-F85B-4AD7-B035-3BF8A3173071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{875349EB-F85B-4AD7-B035-3BF8A3173071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{875349EB-F85B-4AD7-B035-3BF8A3173071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{875349EB-F85B-4AD7-B035-3BF8A3173071}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +102,8 @@ Global
 		{68F6345C-2233-48D5-BEAB-5382309D2BCE} = {6943A1B7-5430-4BD9-978D-75EE52F321A0}
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {C8E8A187-BD41-4F7E-BB9C-B3F916661B6E}
 		{E725CEA1-2BE9-42AC-BA87-B5DA35F373B2} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{875349EB-F85B-4AD7-B035-3BF8A3173071} = {C8E8A187-BD41-4F7E-BB9C-B3F916661B6E}
+		{875349EB-F85B-4AD7-B035-3BF8A3173071} = {875349EB-F85B-4AD7-B035-3BF8A3173071}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CD22888-2930-4C36-A4FD-4CCE20C064AF}
