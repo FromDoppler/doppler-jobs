@@ -35,6 +35,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
+using OfflineConversionsJob.ApiClient;
+using OfflineConversionsJob.Services;
+using OfflineConversionsJob.Settings;
 
 namespace Doppler.Jobs.Server
 {
@@ -99,6 +102,11 @@ namespace Doppler.Jobs.Server
             services.Configure<DopplerBeplicServiceConfiguration>(Configuration.GetSection(nameof(DopplerBeplicServiceConfiguration)));
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddTransient<IDopplerBeplicService, DopplerBeplicService>();
+            
+            // OfflineConversions Job
+            services.Configure<OfflineConversionsJobSettings>(Configuration.GetSection("Jobs:OfflineConversionsJobSettings"));
+            services.AddTransient<IGoogleConversionService, GoogleConversionService>();
+            services.AddHttpClient<IZohoApiClient, ZohoApiClient>();
 
             //Cancel Account Job
             services.AddTransient<CancelAccountWithScheduleCancellation.Job.Database.IDopplerRepository, CancelAccountWithScheduleCancellation.Job.Database.DopplerRepository>();
@@ -219,6 +227,12 @@ namespace Doppler.Jobs.Server
                 job => job.Run(),
                 Configuration["Jobs:DopplerCancelAccountWithScheduleCancellationJobSettings:IntervalCronExpression"],
                 TimeZoneInfo.FindSystemTimeZoneById(tz));
+            
+            RecurringJob.AddOrUpdate<OfflineConversionsJob.OfflineConversionsJob>(
+            Configuration["Jobs:OfflineConversionsJobSettings:Identifier"],
+            job => job.Run(),
+            Configuration["Jobs:OfflineConversionsJobSettings:IntervalCronExpression"],
+            TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }
 }

@@ -27,6 +27,7 @@
     <ProjectReference Include="..\DopplerCancelAccountJob\Doppler.CancelAccountWithScheduleCancellation.Job.csproj" />
     <ProjectReference Include="..\DopplerCurrencyJob\Doppler.Currency.Job.csproj" />
     <ProjectReference Include="..\NotificationsJob\Doppler.Notifications.Job.csproj" />
+    <ProjectReference Include="..\OfflineConversionsJob\OfflineConversionsJob.csproj" />
     <ProjectReference Include="..\SurplusAddOnJob\Doppler.SurplusAddOn.Job.csproj" />
   </ItemGroup>
 
