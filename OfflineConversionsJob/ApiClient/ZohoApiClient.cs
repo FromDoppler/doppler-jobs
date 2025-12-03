@@ -25,7 +25,7 @@ public class ZohoApiClient(HttpClient httpClient, ILogger<ZohoApiClient> logger,
             Fields = new List<string> { "GCLID", "Created_Time", "Score", "Currency", "Id", "GoogleAdProcessed" },
             PageSize = 200, // Max allowed by Zoho.
             Page = 1,
-            FromCreatedTime = DateTimeOffset.Now.AddDays(-90).ToString("yyyy-MM-ddTHH:mm:sszzz"),
+            FromCreatedTime = DateTimeOffset.Now.AddDays(-90).ToString("yyyy-MM-ddTHH:mm:sszzz").Replace("+", "%2B"),
             MinScore = 1,
             GoogleAdProcessed = false,
             SortBy = "Created_Time",
