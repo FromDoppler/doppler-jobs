@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 COPY Doppler.Jobs.sln ./
 COPY ["Doppler.Database/Doppler.Database.csproj", "Doppler.Database/"]
@@ -23,7 +23,7 @@ RUN dotnet test
 FROM build AS publish
 RUN dotnet publish "DopplerJobsServer/Doppler.Jobs.Server.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS final
 WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app/publish .
