@@ -21,14 +21,14 @@ public class DopplerFtpJob(
 
         logger.LogInformation("Starting FTP job.");
 
-        logger.LogInformation("Uploading file {LocalFile} to {RemotePath}.",
-            config.LocalUploadFilePath, config.RemoteUploadPath);
-        await ftpService.UploadFile(config.LocalUploadFilePath, config.RemoteUploadPath);
+        //logger.LogInformation("Uploading file {LocalFile} to {RemotePath}.",
+        //    config.LocalUploadFilePath, config.RemoteUploadPath);
+        //await ftpService.UploadFile(config.LocalUploadFilePath, config.RemoteUploadPath);
 
-        logger.LogInformation("Downloading file from {RemotePath}.", config.RemoteDownloadPath);
-        var content = await ftpService.DownloadFileContent(config.RemoteDownloadPath);
+        //logger.LogInformation("Downloading file from {RemotePath}.", config.RemoteDownloadPath);
+        //var content = await ftpService.DownloadFileContent(config.RemoteDownloadPath);
 
-        logger.LogInformation("Downloaded file content:\n{Content}", content);
+        //logger.LogInformation("Downloaded file content:\n{Content}", content);
 
         logger.LogInformation("FTP job completed successfully.");
     }
