@@ -36,8 +36,7 @@ public class SftpConnectionTests
         return new FtpService(logger.Object, optionsMonitor.Object);
     }
 
-    //[Fact(Skip = "Manual test - run only to verify SFTP connectivity")]
-    [Fact]
+    [Fact(Skip = "Manual test - run only to verify SFTP connectivity")]
     public async Task CheckConnection_WithRealServer_ShouldConnectSuccessfully()
     {
         var service = CreateService();
