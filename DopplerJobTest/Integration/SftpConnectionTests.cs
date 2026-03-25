@@ -23,10 +23,10 @@ public class SftpConnectionTests
     {
         var settings = new FtpJobSettings
         {
-            Host = "reporting.fromdoppler.com",
-            Port = 9427,
-            Username = "comericaFTP",
-            Password = "ziYujTQaMm4hpSJS"
+            Host = "<HOST>",
+            Port = 1,
+            Username = "<USER>",
+            Password = "<PASSWORD>"
         };
 
         var logger = new Mock<ILogger<FtpService>>();
