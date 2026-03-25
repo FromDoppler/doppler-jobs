@@ -35,6 +35,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
+using Doppler.Ftp.Job;
+using Doppler.Ftp.Job.Services;
+using Doppler.Ftp.Job.Settings;
 using OfflineConversionsJob.ApiClient;
 using OfflineConversionsJob.Services;
 using OfflineConversionsJob.Settings;
@@ -107,6 +110,10 @@ namespace Doppler.Jobs.Server
             services.Configure<OfflineConversionsJobSettings>(Configuration.GetSection("Jobs:OfflineConversionsJobSettings"));
             services.AddTransient<IGoogleConversionService, GoogleConversionService>();
             services.AddHttpClient<IZohoApiClient, ZohoApiClient>();
+
+            // FTP Job
+            services.Configure<FtpJobSettings>(Configuration.GetSection("Jobs:FtpJobSettings"));
+            services.AddTransient<IFtpService, FtpService>();
 
             //Cancel Account Job
             services.AddTransient<CancelAccountWithScheduleCancellation.Job.Database.IDopplerRepository, CancelAccountWithScheduleCancellation.Job.Database.DopplerRepository>();
@@ -233,6 +240,12 @@ namespace Doppler.Jobs.Server
             job => job.Run(),
             Configuration["Jobs:OfflineConversionsJobSettings:IntervalCronExpression"],
             TimeZoneInfo.FindSystemTimeZoneById(tz));
+
+            RecurringJob.AddOrUpdate<DopplerFtpJob>(
+                Configuration["Jobs:FtpJobSettings:Identifier"],
+                job => job.Run(),
+                Configuration["Jobs:FtpJobSettings:IntervalCronExpression"],
+                TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }
 }
