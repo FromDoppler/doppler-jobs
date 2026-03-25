@@ -114,6 +114,7 @@ namespace Doppler.Jobs.Server
             // FTP Job
             services.Configure<FtpJobSettings>(Configuration.GetSection("Jobs:FtpJobSettings"));
             services.AddTransient<IFtpService, FtpService>();
+            services.AddTransient<Ftp.Job.Database.IDopplerRepository, Ftp.Job.Database.DopplerRepository>();
 
             //Cancel Account Job
             services.AddTransient<CancelAccountWithScheduleCancellation.Job.Database.IDopplerRepository, CancelAccountWithScheduleCancellation.Job.Database.DopplerRepository>();
