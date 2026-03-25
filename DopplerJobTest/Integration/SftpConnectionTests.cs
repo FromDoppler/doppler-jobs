@@ -45,4 +45,14 @@ public class SftpConnectionTests
 
         Assert.True(result, "SFTP connection should succeed with the provided credentials.");
     }
+
+    [Fact(Skip = "Manual test - run only to verify SFTP connectivity")]
+    public async Task TestUploadFile_WithRealServer_ShouldUploadTheFile()
+    {
+        var service = CreateService();
+
+        await service.UploadFile(@"C:\MisCosas\test-upload.txt.txt", "/test-upload.txt.txt");
+
+        Assert.True(true);
+    }
 }
