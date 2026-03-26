@@ -35,6 +35,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
+using Doppler.UpdateCredtiCardAccount.Job;
+using Doppler.UpdateCredtiCardAccount.Job.Services;
+using Doppler.UpdateCredtiCardAccount.Job.Settings;
 using OfflineConversionsJob.ApiClient;
 using OfflineConversionsJob.Services;
 using OfflineConversionsJob.Settings;
@@ -107,6 +110,11 @@ namespace Doppler.Jobs.Server
             services.Configure<OfflineConversionsJobSettings>(Configuration.GetSection("Jobs:OfflineConversionsJobSettings"));
             services.AddTransient<IGoogleConversionService, GoogleConversionService>();
             services.AddHttpClient<IZohoApiClient, ZohoApiClient>();
+
+            // FTP Job
+            services.Configure<UpdateCredtiCardAccountJobSettings>(Configuration.GetSection("Jobs:UpdateCredtiCardAccountJobSettings"));
+            services.AddTransient<IFtpService, FtpService>();
+            services.AddTransient<UpdateCredtiCardAccount.Job.Database.IDopplerRepository, UpdateCredtiCardAccount.Job.Database.DopplerRepository>();
 
             //Cancel Account Job
             services.AddTransient<CancelAccountWithScheduleCancellation.Job.Database.IDopplerRepository, CancelAccountWithScheduleCancellation.Job.Database.DopplerRepository>();
@@ -233,6 +241,12 @@ namespace Doppler.Jobs.Server
             job => job.Run(),
             Configuration["Jobs:OfflineConversionsJobSettings:IntervalCronExpression"],
             TimeZoneInfo.FindSystemTimeZoneById(tz));
+
+            RecurringJob.AddOrUpdate<DopplerUpdateCredtiCardAccountJob>(
+                Configuration["Jobs:UpdateCredtiCardAccountJobSettings:Identifier"],
+                job => job.Run(),
+                Configuration["Jobs:UpdateCredtiCardAccountJobSettings:IntervalCronExpression"],
+                TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }
 }

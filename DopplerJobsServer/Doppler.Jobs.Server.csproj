@@ -28,6 +28,7 @@
     <ProjectReference Include="..\DopplerCurrencyJob\Doppler.Currency.Job.csproj" />
     <ProjectReference Include="..\NotificationsJob\Doppler.Notifications.Job.csproj" />
     <ProjectReference Include="..\OfflineConversionsJob\OfflineConversionsJob.csproj" />
+    <ProjectReference Include="..\DopplerUpdateCredtiCardAccountJob\Doppler.UpdateCredtiCardAccount.Job.csproj" />
     <ProjectReference Include="..\SurplusAddOnJob\Doppler.SurplusAddOn.Job.csproj" />
   </ItemGroup>
 
