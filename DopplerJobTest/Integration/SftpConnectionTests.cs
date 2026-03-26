@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
-using Doppler.Ftp.Job.Services;
-using Doppler.Ftp.Job.Settings;
+using Doppler.UpdateCredtiCardAccount.Job.Services;
+using Doppler.UpdateCredtiCardAccount.Job.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
