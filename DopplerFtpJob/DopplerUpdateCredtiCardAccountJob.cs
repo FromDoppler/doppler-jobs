@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
-using Doppler.Ftp.Job.Services;
-using Doppler.Ftp.Job.Settings;
+using Doppler.UpdateCredtiCardAccount.Job.Services;
+using Doppler.UpdateCredtiCardAccount.Job.Settings;
 using Hangfire;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Doppler.Ftp.Job;
+namespace Doppler.UpdateCredtiCardAccount.Job;
 
 public class DopplerUpdateCredtiCardAccountJob(
     ILogger<DopplerUpdateCredtiCardAccountJob> logger,

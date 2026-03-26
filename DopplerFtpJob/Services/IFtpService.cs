@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Doppler.Ftp.Job.Services;
+namespace Doppler.UpdateCredtiCardAccount.Job.Services;
 
 public interface IFtpService
 {

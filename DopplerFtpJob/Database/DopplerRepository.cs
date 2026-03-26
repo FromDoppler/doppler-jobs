@@ -4,7 +4,7 @@ using Dapper;
 using Doppler.Database;
 using Microsoft.Extensions.Logging;
 
-namespace Doppler.Ftp.Job.Database
+namespace Doppler.UpdateCredtiCardAccount.Job.Database
 {
     public class DopplerRepository : IDopplerRepository
     {

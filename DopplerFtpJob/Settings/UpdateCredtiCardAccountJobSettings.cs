@@ -1,4 +1,4 @@
-namespace Doppler.Ftp.Job.Settings;
+namespace Doppler.UpdateCredtiCardAccount.Job.Settings;
 
 public class UpdateCredtiCardAccountJobSettings
 {

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Doppler.Ftp.Job.Database
+namespace Doppler.UpdateCredtiCardAccount.Job.Database
 {
     public interface IDopplerRepository
     {

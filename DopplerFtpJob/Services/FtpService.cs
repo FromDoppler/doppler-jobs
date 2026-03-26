@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Doppler.Ftp.Job.Settings;
+using Doppler.UpdateCredtiCardAccount.Job.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Renci.SshNet;
 
-namespace Doppler.Ftp.Job.Services;
+namespace Doppler.UpdateCredtiCardAccount.Job.Services;
 
 public class FtpService : IFtpService
 {
