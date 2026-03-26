@@ -10,7 +10,7 @@ COPY ["NotificationsJob/Doppler.Notifications.Job.csproj", "NotificationsJob/"]
 COPY ["SurplusAddOnJob/Doppler.SurplusAddOn.Job.csproj", "SurplusAddOnJob/"]
 COPY ["DopplerJobTest/Doppler.Jobs.Test.csproj", "DopplerJobTest/"]
 COPY ["DopplerCancelAccountJob/Doppler.CancelAccountWithScheduleCancellation.Job.csproj", "DopplerCancelAccountJob/"]
-COPY ["DopplerFtpJob/Doppler.Ftp.Job.csproj", "DopplerFtpJob/"]
+COPY ["DopplerUpdateCredtiCardAccountJob/Doppler.UpdateCredtiCardAccount.Job.csproj", "DopplerUpdateCredtiCardAccountJob/"]
 COPY ["OfflineConversionsJob/OfflineConversionsJob.csproj", "OfflineConversionsJob/"]
 RUN dotnet restore
 
