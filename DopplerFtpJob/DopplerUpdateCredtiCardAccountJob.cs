@@ -7,10 +7,10 @@ using Microsoft.Extensions.Options;
 
 namespace Doppler.Ftp.Job;
 
-public class DopplerFtpJob(
-    ILogger<DopplerFtpJob> logger,
+public class DopplerUpdateCredtiCardAccountJob(
+    ILogger<DopplerUpdateCredtiCardAccountJob> logger,
     IFtpService ftpService,
-    IOptionsMonitor<FtpJobSettings> settings)
+    IOptionsMonitor<UpdateCredtiCardAccountJobSettings> settings)
 {
     [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Delete, Attempts = 0)]
     public void Run() => RunAsync().GetAwaiter().GetResult();

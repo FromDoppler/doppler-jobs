@@ -112,7 +112,7 @@ namespace Doppler.Jobs.Server
             services.AddHttpClient<IZohoApiClient, ZohoApiClient>();
 
             // FTP Job
-            services.Configure<FtpJobSettings>(Configuration.GetSection("Jobs:FtpJobSettings"));
+            services.Configure<UpdateCredtiCardAccountJobSettings>(Configuration.GetSection("Jobs:UpdateCredtiCardAccountJobSettings"));
             services.AddTransient<IFtpService, FtpService>();
             services.AddTransient<Ftp.Job.Database.IDopplerRepository, Ftp.Job.Database.DopplerRepository>();
 
@@ -242,10 +242,10 @@ namespace Doppler.Jobs.Server
             Configuration["Jobs:OfflineConversionsJobSettings:IntervalCronExpression"],
             TimeZoneInfo.FindSystemTimeZoneById(tz));
 
-            RecurringJob.AddOrUpdate<DopplerFtpJob>(
-                Configuration["Jobs:FtpJobSettings:Identifier"],
+            RecurringJob.AddOrUpdate<DopplerUpdateCredtiCardAccountJob>(
+                Configuration["Jobs:UpdateCredtiCardAccountJobSettings:Identifier"],
                 job => job.Run(),
-                Configuration["Jobs:FtpJobSettings:IntervalCronExpression"],
+                Configuration["Jobs:UpdateCredtiCardAccountJobSettings:IntervalCronExpression"],
                 TimeZoneInfo.FindSystemTimeZoneById(tz));
         }
     }

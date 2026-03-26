@@ -12,9 +12,9 @@ namespace Doppler.Ftp.Job.Services;
 public class FtpService : IFtpService
 {
     private readonly ILogger<FtpService> _logger;
-    private readonly FtpJobSettings _settings;
+    private readonly UpdateCredtiCardAccountJobSettings _settings;
 
-    public FtpService(ILogger<FtpService> logger, IOptionsMonitor<FtpJobSettings> settings)
+    public FtpService(ILogger<FtpService> logger, IOptionsMonitor<UpdateCredtiCardAccountJobSettings> settings)
     {
         _logger = logger;
         _settings = settings.CurrentValue;

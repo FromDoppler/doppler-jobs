@@ -1,6 +1,6 @@
 namespace Doppler.Ftp.Job.Settings;
 
-public class FtpJobSettings
+public class UpdateCredtiCardAccountJobSettings
 {
     public string Host { get; set; }
     public int Port { get; set; } = 22;

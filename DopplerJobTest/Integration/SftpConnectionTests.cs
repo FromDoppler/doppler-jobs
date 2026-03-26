@@ -21,7 +21,7 @@ public class SftpConnectionTests
 
     private FtpService CreateService()
     {
-        var settings = new FtpJobSettings
+        var settings = new UpdateCredtiCardAccountJobSettings
         {
             Host = "<HOST>",
             Port = 1,
@@ -30,7 +30,7 @@ public class SftpConnectionTests
         };
 
         var logger = new Mock<ILogger<FtpService>>();
-        var optionsMonitor = new Mock<IOptionsMonitor<FtpJobSettings>>();
+        var optionsMonitor = new Mock<IOptionsMonitor<UpdateCredtiCardAccountJobSettings>>();
         optionsMonitor.Setup(o => o.CurrentValue).Returns(settings);
 
         return new FtpService(logger.Object, optionsMonitor.Object);
