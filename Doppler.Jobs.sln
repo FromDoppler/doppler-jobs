@@ -41,7 +41,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OfflineConversionsJob", "Of
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfflineConversionsJob", "OfflineConversionsJob\OfflineConversionsJob.csproj", "{C5ECF1A1-27BD-49CA-8C2A-7CFC7545D1B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppler.UpdateCredtiCardAccount.Job", "DopplerFtpJob\Doppler.UpdateCredtiCardAccount.Job.csproj", "{0007A438-95EE-4852-AEF9-8F3BF57CF833}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doppler.UpdateCredtiCardAccount.Job", "DopplerUpdateCredtiCardAccountJob\Doppler.UpdateCredtiCardAccount.Job.csproj", "{0007A438-95EE-4852-AEF9-8F3BF57CF833}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DopplerUpdateCredtiCardAccountJob", "DopplerUpdateCredtiCardAccountJob", "{36AABFE2-EB76-4A06-8220-0ABAECF88059}"
 EndProject
