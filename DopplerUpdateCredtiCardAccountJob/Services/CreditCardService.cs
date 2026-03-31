@@ -48,8 +48,8 @@ public class CreditCardService : ICreditCardService
         var localFilePath = GenerateComericaFile(config.LocalUploadFilePath);
 
         // Step 3: Upload the file to Comerica via SFTP
-        // var remoteFilePath = Path.Combine(config.RemoteUploadPath, Path.GetFileName(localFilePath));
-        // await _ftpService.UploadFile(localFilePath, remoteFilePath);
+        var remoteFilePath = Path.Combine(config.RemoteUploadPath, Path.GetFileName(localFilePath));
+        await _ftpService.UploadFile(localFilePath, remoteFilePath);
 
         _logger.LogInformation("SendCurrentCCDataToComerica process completed successfully.");
     }
