@@ -114,6 +114,7 @@ namespace Doppler.Jobs.Server
             // FTP Job
             services.Configure<UpdateCredtiCardAccountJobSettings>(Configuration.GetSection("Jobs:UpdateCredtiCardAccountJobSettings"));
             services.AddTransient<IFtpService, FtpService>();
+            services.AddTransient<ICreditCardService, CreditCardService>();
             services.AddTransient<UpdateCredtiCardAccount.Job.Database.IDopplerRepository, UpdateCredtiCardAccount.Job.Database.DopplerRepository>();
 
             //Cancel Account Job
