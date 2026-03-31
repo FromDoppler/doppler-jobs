@@ -16,6 +16,10 @@ public class CreditCardService : ICreditCardService
 {
     private const string ComericaRequestSubdirectory = "comerica/request";
     private const int RecordLength = 94;
+    private const int MinEchoLineLength = 8;
+    private const int StatusFlagIndex = 7;
+    private const int MessageStartIndex = 8;
+    private const char SuccessFlag = '1';
 
     private readonly ILogger<CreditCardService> _logger;
     private readonly IDopplerRepository _repository;
@@ -52,6 +56,60 @@ public class CreditCardService : ICreditCardService
         await _ftpService.UploadFile(localFilePath, remoteFilePath);
 
         _logger.LogInformation("SendCurrentCCDataToComerica process completed successfully.");
+    }
+
+    public async Task<EchoValidationResult> ValidateEchoFile(string remoteEchoFilePath)
+    {
+        _logger.LogInformation("Checking for echo file at {RemotePath}.", remoteEchoFilePath);
+
+        string echoFileContent;
+        try
+        {
+            echoFileContent = await _ftpService.DownloadFileContent(remoteEchoFilePath);
+        }
+        catch (Renci.SshNet.Common.SftpPathNotFoundException)
+        {
+            _logger.LogInformation("Echo file not found yet at {RemotePath}.", remoteEchoFilePath);
+            return new EchoValidationResult { Status = EchoValidationStatus.NotFound };
+        }
+
+        return ParseEchoFileContent(echoFileContent);
+    }
+
+    private EchoValidationResult ParseEchoFileContent(string echoFileContent)
+    {
+        using var reader = new StringReader(echoFileContent);
+        var firstLine = reader.ReadLine();
+
+        if (firstLine == null || firstLine.Length < MinEchoLineLength)
+        {
+            _logger.LogError("Invalid echo file format. Line is null or too short (length: {Length}).",
+                firstLine?.Length ?? 0);
+            return new EchoValidationResult
+            {
+                Status = EchoValidationStatus.InvalidFormat,
+                ErrorMessage = "Formato de archivo inválido"
+            };
+        }
+
+        var statusFlag = firstLine[StatusFlagIndex];
+        var message = firstLine.Length > MessageStartIndex
+            ? firstLine[MessageStartIndex..].Trim()
+            : string.Empty;
+
+        if (statusFlag == SuccessFlag)
+        {
+            _logger.LogInformation("Echo file validation succeeded.");
+            return new EchoValidationResult { Status = EchoValidationStatus.Success };
+        }
+
+        _logger.LogWarning("Echo file validation failed. Status: {StatusFlag}, Message: {Message}.",
+            statusFlag, message);
+        return new EchoValidationResult
+        {
+            Status = EchoValidationStatus.Failed,
+            ErrorMessage = message
+        };
     }
 
     private string GenerateComericaFile(string localDirectory)
