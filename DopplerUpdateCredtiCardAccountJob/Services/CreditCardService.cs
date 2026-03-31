@@ -58,7 +58,7 @@ public class CreditCardService : ICreditCardService
         _logger.LogInformation("SendCurrentCCDataToComerica process completed successfully.");
     }
 
-    public async Task<EchoValidationResult> ValidateEchoFile(string remoteEchoFilePath)
+    public async Task<EchoValidationResult> VerifyComericaRequestDelivery(string remoteEchoFilePath)
     {
         _logger.LogInformation("Checking for echo file at {RemotePath}.", remoteEchoFilePath);
 

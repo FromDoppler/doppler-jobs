@@ -77,7 +77,7 @@ public class CreditCardServiceTests
     }
 
     [Fact(Skip = "Manual test - run only to verify echo file validation against real SFTP")]
-    public async Task ValidateEchoFile_WithRealSftp_ShouldReturnExpectedStatus()
+    public async Task VerifyComericaRequestDelivery_WithRealSftp_ShouldReturnExpectedStatus()
     {
         // Arrange
         var service = CreateService();
@@ -86,7 +86,7 @@ public class CreditCardServiceTests
         var remoteEchoFilePath = "/download/DOPP_AU_ECHO_SAMPLE.txt";
 
         // Act
-        var result = await service.ValidateEchoFile(remoteEchoFilePath);
+        var result = await service.VerifyComericaRequestDelivery(remoteEchoFilePath);
 
         // Assert
         _output.WriteLine($"Status: {result.Status}");
@@ -98,7 +98,7 @@ public class CreditCardServiceTests
     }
 
     [Fact(Skip = "Manual test - run only to verify echo file validation against real SFTP")]
-    public async Task ValidateEchoFile_WithRealSftp_ShouldReturnFailedStatus()
+    public async Task VerifyComericaRequestDelivery_WithRealSftp_ShouldReturnFailedStatus()
     {
         // Arrange
         var service = CreateService();
@@ -107,7 +107,7 @@ public class CreditCardServiceTests
         var remoteEchoFilePath = "/download/DOPP_AU_ECHO_SAMPLE_failed.txt";
 
         // Act
-        var result = await service.ValidateEchoFile(remoteEchoFilePath);
+        var result = await service.VerifyComericaRequestDelivery(remoteEchoFilePath);
 
         // Assert
         _output.WriteLine($"Status: {result.Status}");
@@ -119,7 +119,7 @@ public class CreditCardServiceTests
     }
 
     [Fact(Skip = "Manual test - run only to verify echo file validation against real SFTP")]
-    public async Task ValidateEchoFile_WithRealSftp_ShouldReturnNotFoundStatus()
+    public async Task VerifyComericaRequestDelivery_WithRealSftp_ShouldReturnNotFoundStatus()
     {
         // Arrange
         var service = CreateService();
@@ -128,7 +128,7 @@ public class CreditCardServiceTests
         var remoteEchoFilePath = "/download-empty/DOPP_AU_ECHO_SAMPLE.txt";
 
         // Act
-        var result = await service.ValidateEchoFile(remoteEchoFilePath);
+        var result = await service.VerifyComericaRequestDelivery(remoteEchoFilePath);
 
         // Assert
         _output.WriteLine($"Status: {result.Status}");
