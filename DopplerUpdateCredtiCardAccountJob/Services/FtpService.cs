@@ -90,7 +90,7 @@ public class FtpService : IFtpService
 
         var files = client.ListDirectory(remotePath)
             .Where(f => !f.IsDirectory)
-            .Select(f => f.FullName);
+            .Select(f => f.Name);
 
         var result = files.ToList();
 
