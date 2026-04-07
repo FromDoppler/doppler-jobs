@@ -21,6 +21,27 @@ public class CreditCardService : ICreditCardService
     private const int MessageStartIndex = 8;
     private const char SuccessFlag = '1';
 
+    private const int MinDetailLength = 78;
+    private const int ResponseMerchantNumberStart = 10; // pos 11
+    private const int ResponseMerchantNumberLength = 16;
+    private const int ResponseOldTokenStart = 26;       // pos 27
+    private const int ResponseOldTokenLength = 19;
+    private const int ResponseOldExpiryStart = 45;      // pos 46
+    private const int ResponseOldExpiryLength = 4;
+    private const int ResponseNewTokenStart = 49;       // pos 50
+    private const int ResponseNewTokenLength = 19;
+    private const int ResponseNewExpiryStart = 68;      // pos 69
+    private const int ResponseNewExpiryLength = 4;
+    private const int ResponseCodeStart = 72;           // pos 73
+    private const int ResponseCodeLength = 6;
+
+    private static readonly HashSet<string> UpdateTokenCodes = new(StringComparer.OrdinalIgnoreCase)
+        { "UPDATE", "A", "CC" };
+    private static readonly HashSet<string> UpdateExpiryCodes = new(StringComparer.OrdinalIgnoreCase)
+        { "EXPIRY", "E", "CE" };
+    private static readonly HashSet<string> ContactCardholderCodes = new(StringComparer.OrdinalIgnoreCase)
+        { "CONTAC", "C", "XC" };
+
     private readonly ILogger<CreditCardService> _logger;
     private readonly IDopplerRepository _repository;
     private readonly IFtpService _ftpService;
@@ -110,6 +131,118 @@ public class CreditCardService : ICreditCardService
             Status = EchoValidationStatus.Failed,
             ErrorMessage = message
         };
+    }
+
+    public List<AccountUpdaterResponseRecord> ProcessAccountUpdaterResponse(string responseFileContent)
+    {
+        _logger.LogInformation("Starting Account Updater response file processing.");
+
+        var results = new List<AccountUpdaterResponseRecord>();
+        using var reader = new StringReader(responseFileContent);
+        var lineNumber = 0;
+
+        while (reader.ReadLine() is { } line)
+        {
+            lineNumber++;
+
+            if (line.Length == 0)
+                continue;
+
+            var recordType = line[0];
+
+            if (recordType is 'H' or 'T')
+                continue;
+
+            if (recordType != 'D')
+            {
+                _logger.LogWarning("Skipping unrecognized record type '{RecordType}' at line {LineNumber}.", recordType, lineNumber);
+                continue;
+            }
+
+            if (line.Length < MinDetailLength)
+            {
+                _logger.LogWarning("Skipping detail record at line {LineNumber}: too short ({Length} chars).", lineNumber, line.Length);
+                continue;
+            }
+
+            var record = ParseResponseDetailRecord(line);
+
+            if (record.Action == ResponseAction.NoChange)
+            {
+                _logger.LogDebug("Line {LineNumber}: No changes for token {OldToken}, ResponseCode={ResponseCode}.",
+                    lineNumber, record.OldToken, record.ResponseCode);
+                continue;
+            }
+
+            _logger.LogInformation("Line {LineNumber}: Action={Action}, OldToken={OldToken}, ResponseCode={ResponseCode}.",
+                lineNumber, record.Action, record.OldToken, record.ResponseCode);
+
+            results.Add(record);
+        }
+
+        _logger.LogInformation("Response file processing completed. {ActionableCount} actionable records found.", results.Count);
+
+        // TODO: Update in database
+        // foreach (var record in results)
+        // {
+        //     switch (record.Action)
+        //     {
+        //         case ResponseAction.UpdateTokenAndExpiry:
+        //             await _repository.UpdateCreditCardToken(record.OldToken, record.NewToken, record.NewExpiry);
+        //             break;
+        //         case ResponseAction.UpdateExpiry:
+        //             await _repository.UpdateCreditCardExpiry(record.OldToken, record.NewExpiry);
+        //             break;
+        //         case ResponseAction.ContactCardholder:
+        //             await _repository.MarkCreditCardAsInvalid(record.OldToken);
+        //             break;
+        //     }
+        // }
+
+        return results;
+    }
+
+    private static AccountUpdaterResponseRecord ParseResponseDetailRecord(string line)
+    {
+        var merchantNumber = line.Substring(ResponseMerchantNumberStart, ResponseMerchantNumberLength).Trim();
+        var oldToken = line.Substring(ResponseOldTokenStart, ResponseOldTokenLength).Trim();
+        var oldExpiry = line.Substring(ResponseOldExpiryStart, ResponseOldExpiryLength).Trim();
+        var newToken = line.Substring(ResponseNewTokenStart, ResponseNewTokenLength).Trim();
+        var newExpiry = line.Substring(ResponseNewExpiryStart, ResponseNewExpiryLength).Trim();
+        var responseCode = line.Substring(ResponseCodeStart, ResponseCodeLength).Trim();
+
+        var action = DetermineResponseAction(responseCode, newToken, newExpiry);
+
+        return new AccountUpdaterResponseRecord
+        {
+            MerchantNumber = merchantNumber,
+            OldToken = oldToken,
+            OldExpiry = oldExpiry,
+            NewToken = newToken,
+            NewExpiry = newExpiry,
+            ResponseCode = responseCode,
+            Action = action
+        };
+    }
+
+    private static ResponseAction DetermineResponseAction(string responseCode, string newToken, string newExpiry)
+    {
+        if (ContactCardholderCodes.Contains(responseCode))
+            return ResponseAction.ContactCardholder;
+
+        if (UpdateTokenCodes.Contains(responseCode))
+            return ResponseAction.UpdateTokenAndExpiry;
+
+        if (UpdateExpiryCodes.Contains(responseCode))
+            return ResponseAction.UpdateExpiry;
+
+        if (!string.IsNullOrEmpty(newToken) && !string.IsNullOrEmpty(newExpiry))
+            return ResponseAction.UpdateTokenAndExpiry;
+
+        if (!string.IsNullOrEmpty(newExpiry))
+            return ResponseAction.UpdateExpiry;
+
+        return ResponseAction.NoChange;
     }
 
     private string GenerateComericaFile(string localDirectory)

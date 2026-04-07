@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -138,4 +139,43 @@ public class CreditCardServiceTests
             result.Status is EchoValidationStatus.NotFound,
             $"Unexpected status: {result.Status}");
     }
+
+    [Fact(Skip = "Manual test - upload response file to SFTP before running")]
+    public async Task ProcessAccountUpdaterResponse_WithRealSftp_ShouldParseResponseFile()
+    {
+        // Arrange
+        var service = CreateService();
+
+        // Make sure this file exists in the FTP Server
+        var remoteResponseFilePath = "/download/DOPP_AU_RESP_SAMPLE.txt";
+
+        // Act
+        var optionsMonitor = new Mock<IOptionsMonitor<UpdateCredtiCardAccountJobSettings>>();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(DefaultSettings);
+        var responseFileContent = await new FtpService(
+            new Mock<ILogger<FtpService>>().Object,
+            optionsMonitor.Object).DownloadFileContent(remoteResponseFilePath);
+
+        var results = service.ProcessAccountUpdaterResponse(responseFileContent);
+
+        // Assert
+        _output.WriteLine($"Total actionable records: {results.Count}");
+        foreach (var record in results)
+        {
+            _output.WriteLine($"Action={record.Action}, OldToken={record.OldToken}, NewToken={record.NewToken}, " +
+                              $"OldExpiry={record.OldExpiry}, NewExpiry={record.NewExpiry}, ResponseCode={record.ResponseCode}");
+        }
+
+        Assert.NotNull(results);
+
+        var updateTokenRecords = results.Where(r => r.Action == ResponseAction.UpdateTokenAndExpiry).ToList();
+        var updateExpiryRecords = results.Where(r => r.Action == ResponseAction.UpdateExpiry).ToList();
+        var contactRecords = results.Where(r => r.Action == ResponseAction.ContactCardholder).ToList();
+
+        _output.WriteLine($"\nSummary:");
+        _output.WriteLine($"  UpdateTokenAndExpiry: {updateTokenRecords.Count}");
+        _output.WriteLine($"  UpdateExpiry: {updateExpiryRecords.Count}");
+        _output.WriteLine($"  ContactCardholder: {contactRecords.Count}");
+    }
+
 }
