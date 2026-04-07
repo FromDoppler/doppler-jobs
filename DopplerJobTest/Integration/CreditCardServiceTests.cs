@@ -19,10 +19,10 @@ public class CreditCardServiceTests
 
     private static readonly UpdateCredtiCardAccountJobSettings DefaultSettings = new()
     {
-        Host = "reporting.fromdoppler.com",
-        Port = 9427,
-        Username = "comericaFTP",
-        Password = "ziYujTQaMm4hpSJS",
+        Host = "<HOST>",
+        Port = 1,
+        Username = "<USER>",
+        Password = "<PASSWORD>",
         LocalUploadFilePath = Path.Combine(Path.GetTempPath(), "comerica-test"),
         RemoteUploadPath = "/upload"
     };
