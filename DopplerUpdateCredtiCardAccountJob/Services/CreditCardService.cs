@@ -14,7 +14,7 @@ namespace Doppler.UpdateCredtiCardAccount.Job.Services;
 
 public class CreditCardService : ICreditCardService
 {
-    private const string ComericaRequestSubdirectory = "comerica/request";
+    private const string ComericaRequestSubdirectory = "request";
     private const int RecordLength = 94;
     private const int MinEchoLineLength = 8;
     private const int StatusFlagIndex = 7;
@@ -141,7 +141,8 @@ public class CreditCardService : ICreditCardService
         using var reader = new StringReader(responseFileContent);
         var lineNumber = 0;
 
-        while (reader.ReadLine() is { } line)
+        string line;
+        while ((line = reader.ReadLine()) != null)
         {
             lineNumber++;
 
