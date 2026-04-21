@@ -248,8 +248,7 @@ public class CreditCardService : ICreditCardService
 
     private string GenerateComericaFile(string localDirectory)
     {
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        var fileName = $"DOPP_AU_REQ_{timestamp}.txt";
+        const string fileName = "DOPP_AU_REQ";
         var outputDirectory = Path.Combine(localDirectory, ComericaRequestSubdirectory);
         Directory.CreateDirectory(outputDirectory);
         var filePath = Path.Combine(outputDirectory, fileName);

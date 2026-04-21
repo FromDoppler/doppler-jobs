@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using CrossCutting;
 using Doppler.UpdateCredtiCardAccount.Job.Entities;
@@ -15,7 +14,6 @@ namespace Doppler.UpdateCredtiCardAccount.Job;
 public class VerifyComericaEchoJob(
     ILogger<VerifyComericaEchoJob> logger,
     ICreditCardService creditCardService,
-    IFtpService ftpService,
     IOptionsMonitor<UpdateCredtiCardAccountJobSettings> settings,
     TimeZoneJobConfigurations timeZoneConfig)
 {
@@ -40,22 +38,7 @@ public class VerifyComericaEchoJob(
         logger.LogInformation("Starting echo file verification (iteration {Iteration}/{MaxRetries}).",
             iteration, config.MaxPollingRetries);
 
-        var files = await ftpService.ListFiles(config.RemoteEchoPath);
-
-        var echoFileName = files
-            .Where(f => f.StartsWith(config.EchoFilePrefix, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(f => f)
-            .FirstOrDefault();
-
-        if (echoFileName == null)
-        {
-            logger.LogInformation(
-                "No echo file found in {RemoteEchoPath}. Will retry.",
-                config.RemoteEchoPath);
-            return;
-        }
-
-        var remoteEchoFilePath = $"{config.RemoteEchoPath.TrimEnd('/')}/{echoFileName}";
+        var remoteEchoFilePath = $"{config.RemoteEchoPath.TrimEnd('/')}/{config.EchoFileName}";
 
         var result = await creditCardService.VerifyComericaRequestDelivery(remoteEchoFilePath);
 
@@ -66,7 +49,7 @@ public class VerifyComericaEchoJob(
                 return;
 
             case EchoValidationStatus.Success:
-                logger.LogInformation("Echo file validated successfully. Scheduling response processing, stopping echo verification.");
+                logger.LogInformation("Echo file validated successfully. Scheduling response processing.");
 
                 var tz = TimeZoneInfo.FindSystemTimeZoneById(timeZoneConfig.TimeZoneJobs);
                 RecurringJob.AddOrUpdate<ProcessComericaResponseJob>(
@@ -74,8 +57,6 @@ public class VerifyComericaEchoJob(
                     job => job.Run(),
                     config.PollingCronExpression,
                     tz);
-
-                RecurringJob.RemoveIfExists(config.VerifyEchoJobIdentifier);
                 break;
 
             case EchoValidationStatus.Failed:
