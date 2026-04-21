@@ -1,6 +1,4 @@
-using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Doppler.UpdateCredtiCardAccount.Job.Services;
 using Doppler.UpdateCredtiCardAccount.Job.Settings;
@@ -37,25 +35,21 @@ public class ProcessComericaResponseJob(
         logger.LogInformation("Starting response file processing (iteration {Iteration}/{MaxRetries}).",
             iteration, config.MaxPollingRetries);
 
-        var files = await ftpService.ListFiles(config.RemoteResponsePath);
+        var remoteResponseFilePath = $"{config.RemoteResponsePath.TrimEnd('/')}/{config.ResponseFileName}";
 
-        var responseFileName = files
-            .Where(f => f.StartsWith(config.ResponseFilePrefix, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(f => f)
-            .FirstOrDefault();
-
-        if (responseFileName == null)
+        string content;
+        try
+        {
+            logger.LogInformation("Downloading response file: {RemoteResponseFilePath}.", remoteResponseFilePath);
+            content = await ftpService.DownloadFileContent(remoteResponseFilePath);
+        }
+        catch (Renci.SshNet.Common.SftpPathNotFoundException)
         {
             logger.LogInformation(
-                "No response file found in {RemoteResponsePath}. Will retry.",
-                config.RemoteResponsePath);
+                "Response file not found yet at {RemoteResponseFilePath}. Will retry.",
+                remoteResponseFilePath);
             return;
         }
-
-        var remoteResponseFilePath = $"{config.RemoteResponsePath.TrimEnd('/')}/{responseFileName}";
-
-        logger.LogInformation("Downloading response file: {RemoteResponseFilePath}.", remoteResponseFilePath);
-        var content = await ftpService.DownloadFileContent(remoteResponseFilePath);
 
         var results = creditCardService.ProcessAccountUpdaterResponse(content);
 
