@@ -183,7 +183,7 @@ namespace Doppler.Billing.Job.Database
             }
         }
 
-        public async Task<AddOnPlanUser> GetActiveAddOnPlanByIdBillingCreditAndAddOnType(int currentOnSiteBillingCreditId, AddOnTypeEnum addOnType)
+        public async Task<AddOnPlanUser> GetActiveAddOnPlanByIdBillingCreditAndAddOnType(int currentAddOnBillingCreditId, AddOnTypeEnum addOnType)
         {
             await using var conn = _dbConnectionFactory.GetConnection();
             var query = string.Empty;
@@ -195,14 +195,21 @@ namespace Doppler.Billing.Job.Database
                                       OSP.AdditionalPrint AS Additional, OSP.Fee, OSP.PrintQty AS Quantity, OSP.Custom AS IsCustom
                             FROM [OnSitePlanUser] OSPU
                             INNER JOIN [OnSitePlan] OSP ON OSP.IdOnSitePlan = OSPU.IdOnSitePlan
-                            WHERE OSPU.IdBillingCredit = {currentOnSiteBillingCreditId}";
+                            WHERE OSPU.IdBillingCredit = {currentAddOnBillingCreditId}";
                     break;
                 case AddOnTypeEnum.PushNotification:
                     query = $@"SELECT PNPU.IdUser, PNPU.IdBillingCredit, PNPU.IdPushNotificationPlan AS IdAddOnPlan, 
                                       PNP.Additional AS Additional, PNP.Fee, PNP.Quantity AS Quantity, PNP.Custom AS IsCustom
                             FROM [PushNotificationPlanUser] PNPU
                             INNER JOIN [PushNotificationPlan] PNP ON PNP.IdPushNotificationPlan = PNPU.IdPushNotificationPlan
-                            WHERE PNPU.IdBillingCredit = {currentOnSiteBillingCreditId}";
+                            WHERE PNPU.IdBillingCredit = {currentAddOnBillingCreditId}";
+                    break;
+                case AddOnTypeEnum.EcoAI:
+                    query = $@"SELECT AOPU.IdUser, AOPU.IdBillingCredit, AOPU.IdAddOnPlan AS IdAddOnPlan, 
+                                      AOP.Additional AS Additional, AOP.Fee, AOP.Quantity AS Quantity, AOP.Custom AS IsCustom
+                            FROM [AddOnPlanUser] AOPU
+                            INNER JOIN [AddOnPlan] AOP ON AOP.IdAddOnPlan = AOPU.IdAddOnPlan
+                            WHERE AOPU.IdBillingCredit = {currentAddOnBillingCreditId}";
                     break;
                 default:
                     query = string.Empty;

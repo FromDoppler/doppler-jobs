@@ -5,6 +5,7 @@
 		Chat = 7,
 		OnSite = 8,
 		Landing = 9,
-        PushNotification = 10
+        PushNotification = 10,
+        EcoAI = 11
     }
 }

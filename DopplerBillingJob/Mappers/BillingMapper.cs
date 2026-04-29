@@ -148,6 +148,32 @@ namespace Doppler.Billing.Job.Mappers
                     }
                 }
 
+                if (userBilling.EcoIaAmount > 0 || !string.IsNullOrEmpty(userBilling.EcoIaExtra))
+                {
+                    if (userBilling.PlanType != 0)
+                    {
+                        var user = await dopplerRepository.GetUserByUserIdAsync(userBilling.Id);
+                        var ecoIaAdditionalService = await GetAddOnAdditionalServiceByAddOnTypeAsync(userBilling, user, AccountTypeEnum.User, AddOnTypeEnum.EcoAI);
+                        if (ecoIaAdditionalService != null)
+                        {
+                            billingRequest.AdditionalServices.Add(ecoIaAdditionalService);
+                        }
+                    }
+                    else
+                    {
+                        var userIds = await dopplerRepository.GetUserIdsByClientManagerIdAsync(userBilling.Id);
+                        foreach (var userId in userIds)
+                        {
+                            var user = await dopplerRepository.GetUserByUserIdAsync(userId);
+                            var ecoIaAdditionalService = await GetAddOnAdditionalServiceByAddOnTypeAsync(userBilling, user, AccountTypeEnum.CM, AddOnTypeEnum.EcoAI);
+                            if (ecoIaAdditionalService != null)
+                            {
+                                billingRequest.AdditionalServices.Add(ecoIaAdditionalService);
+                            }
+                        }
+                    }
+                }
+
                 result.Add(billingRequest);
             }
 
@@ -295,6 +321,28 @@ namespace Doppler.Billing.Job.Mappers
                         additionalServiceType = AdditionalServiceTypeEnum.PushNotification;
 
                         break;
+                    case AddOnTypeEnum.EcoAI:
+                        {
+                            extraFee = !string.IsNullOrEmpty(userBilling.EcoIaExtraAmount) ? userBilling.EcoIaExtraAmount.ToDouble() : 0;
+                            extraQty = !string.IsNullOrEmpty(userBilling.EcoIaExtra) ? Convert.ToInt32(userBilling.EcoIaExtra) : 0;
+                            extraPeriodMonth = string.IsNullOrEmpty(userBilling.EcoIaExtraMonth) ? 0 : Convert.ToDateTime(userBilling.EcoIaExtraMonth).Month;
+                            extraPeriodYear = string.IsNullOrEmpty(userBilling.EcoIaExtraMonth) ? 0 : Convert.ToDateTime(userBilling.EcoIaExtraMonth).Year;
+
+                            if (accountType == AccountTypeEnum.CM)
+                            {
+                                var surplus = await dopplerRepository.GetByUserIdAddOnTypeIdAndPeridoAsync(user.UserId, (int)addOnType, userBilling.EcoIaExtraMonth);
+                                extraFee = surplus != null ? (double)surplus.Total * (double)rate : 0;
+                                extraQty = surplus != null ? surplus.Quantity : 0;
+                            }
+
+                            charge = accountType == AccountTypeEnum.User ?
+                                    (double)userBilling.EcoIaAmount :
+                                    addOnPlanUser != null ? ((double)addOnPlanUser.Fee * totalMonth) * (double)rate : 0;
+
+                            additionalServiceType = AdditionalServiceTypeEnum.EcoAI;
+
+                            break;
+                        }
                 }
 
                 var additionalService = new AdditionalService

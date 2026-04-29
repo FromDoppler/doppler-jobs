@@ -37,5 +37,9 @@ namespace Doppler.Billing.Job.Entities
         public string PushNotificationsExtra { get; set; }
         public string PushNotificationsExtraMonth { get; set; }
         public string PushNotificationsExtraAmount { get; set; }
+        public double EcoIaAmount { get; set; }
+        public string EcoIaExtra { get; set; }
+        public string EcoIaExtraMonth { get; set; }
+        public string EcoIaExtraAmount { get; set; }
     }
 }
