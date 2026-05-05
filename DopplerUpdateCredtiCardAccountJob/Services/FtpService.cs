@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,17 +28,27 @@ public class FtpService : IFtpService
 
     public Task UploadFile(string localFilePath, string remoteFilePath)
     {
-        using var client = CreateClient();
-        client.Connect();
-        _logger.LogInformation("Connected to SFTP server {Host}. Uploading {LocalFile} to {RemoteFile}.",
-            _settings.Host, localFilePath, remoteFilePath);
+        try
+        {
+            using var client = CreateClient();
+            client.Connect();
+            _logger.LogInformation("Connected to SFTP server {Host}. Uploading {LocalFile} to {RemoteFile}.",
+                _settings.Host, localFilePath, remoteFilePath);
 
-        using var fileStream = File.OpenRead(localFilePath);
-        client.UploadFile(fileStream, remoteFilePath, true);
+            using var fileStream = File.OpenRead(localFilePath);
+            client.UploadFile(fileStream, remoteFilePath, true);
 
-        _logger.LogInformation("File uploaded successfully to {RemoteFile}.", remoteFilePath);
+            _logger.LogInformation("File uploaded successfully to {RemoteFile}.", remoteFilePath);
 
-        client.Disconnect();
+            client.Disconnect();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "SFTP upload/connect failed for {Host}:{Port}. Local file: {LocalFilePath}. Remote path: {RemoteFilePath}.",
+                _settings.Host, _settings.Port, localFilePath, remoteFilePath);
+        }
+
         return Task.CompletedTask;
     }
 
