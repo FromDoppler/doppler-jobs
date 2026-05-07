@@ -248,7 +248,7 @@ public class CreditCardService : ICreditCardService
 
     private string GenerateComericaFile(string localDirectory)
     {
-        const string fileName = "DOPP_AU_REQ";
+        const string fileName = "DOPP_R0BCRPPU";
         var outputDirectory = Path.Combine(localDirectory, ComericaRequestSubdirectory);
         Directory.CreateDirectory(outputDirectory);
         var filePath = Path.Combine(outputDirectory, fileName);
