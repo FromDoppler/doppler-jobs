@@ -70,7 +70,7 @@ public class CreditCardService : ICreditCardService
         // var creditCardData = await _repository.GetCurrentCreditCardData();
 
         // Step 2: Generate the .txt file with the format Comerica expects
-        var localFilePath = GenerateComericaFile(config.LocalUploadFilePath);
+        var localFilePath = GenerateComericaFile(config.LocalUploadFilePath, config.RequestFileName);
 
         // Step 3: Upload the file to Comerica via SFTP
         var remoteFilePath = Path.Combine(config.RemoteUploadPath, Path.GetFileName(localFilePath));
@@ -246,9 +246,8 @@ public class CreditCardService : ICreditCardService
         return ResponseAction.NoChange;
     }
 
-    private string GenerateComericaFile(string localDirectory)
+    private string GenerateComericaFile(string localDirectory, string fileName)
     {
-        const string fileName = "DOPP_R0BCRPPU";
         var outputDirectory = Path.Combine(localDirectory, ComericaRequestSubdirectory);
         Directory.CreateDirectory(outputDirectory);
         var filePath = Path.Combine(outputDirectory, fileName);

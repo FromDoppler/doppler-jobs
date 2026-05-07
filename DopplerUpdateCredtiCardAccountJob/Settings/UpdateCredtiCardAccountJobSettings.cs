@@ -10,6 +10,7 @@ public class UpdateCredtiCardAccountJobSettings
     public string LocalUploadFilePath { get; set; }
     public string RemoteEchoPath { get; set; }
     public string RemoteResponsePath { get; set; }
+    public string RequestFileName { get; set; }
     public string EchoFileName { get; set; }
     public string ResponseFileName { get; set; }
     public string PollingCronExpression { get; set; }
