@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Doppler.UpdateCredtiCardAccount.Job.Database;
@@ -66,11 +65,15 @@ public class CreditCardService : ICreditCardService
         _logger.LogInformation("Starting SendCurrentCCDataToComerica process.");
 
         // Step 1: Get current credit card data from the database
-        // TODO: Define the repository method to retrieve CC data
-        // var creditCardData = await _repository.GetCurrentCreditCardData();
+        var creditCardData = await _repository.GetCreditCardsForComericaUpdate();
 
         // Step 2: Generate the .txt file with the format Comerica expects
-        var localFilePath = GenerateComericaFile(config.LocalUploadFilePath);
+        var localFilePath = GenerateComericaFile(
+            config.LocalUploadFilePath,
+            config.RequestFileName,
+            creditCardData,
+            config.ChainCode,
+            config.MerchantNumber);
 
         // Step 3: Upload the file to Comerica via SFTP
         var remoteFilePath = Path.Combine(config.RemoteUploadPath, Path.GetFileName(localFilePath));
@@ -246,17 +249,18 @@ public class CreditCardService : ICreditCardService
         return ResponseAction.NoChange;
     }
 
-    private string GenerateComericaFile(string localDirectory)
+    private string GenerateComericaFile(
+        string localDirectory,
+        string fileName,
+        IEnumerable<CreditCardData> records,
+        long chainCode,
+        string merchantNumber)
     {
-        const string fileName = "DOPP_AU_REQ";
         var outputDirectory = Path.Combine(localDirectory, ComericaRequestSubdirectory);
         Directory.CreateDirectory(outputDirectory);
         var filePath = Path.Combine(outputDirectory, fileName);
 
         _logger.LogInformation("Generating Comerica file: {FileName}", fileName);
-
-        // TODO: Replace with actual data from repository
-        var records = Enumerable.Empty<CreditCardData>();
 
         var sb = new StringBuilder();
         sb.AppendLine(BuildHeaderRecord());
@@ -264,7 +268,7 @@ public class CreditCardService : ICreditCardService
         var detailCount = 0;
         foreach (var record in records)
         {
-            sb.AppendLine(BuildDetailRecord(record));
+            sb.AppendLine(BuildDetailRecord(record, chainCode, merchantNumber));
             detailCount++;
         }
 
@@ -283,16 +287,16 @@ public class CreditCardService : ICreditCardService
         return $"H{date}".PadRight(RecordLength);
     }
 
-    private static string BuildDetailRecord(CreditCardData data)
+    private static string BuildDetailRecord(CreditCardData data, long chainCode, string merchantNumber)
     {
         var sb = new StringBuilder(RecordLength);
 
         // Pos 1: Record type
         sb.Append('D');
         // Pos 2-10: Chain Code (9 chars, zero-padded left)
-        sb.Append(data.ChainCode.ToString().PadLeft(9, '0'));
+        sb.Append(chainCode.ToString().PadLeft(9, '0'));
         // Pos 11-26: Merchant Number (16 chars)
-        sb.Append((data.MerchantNumber ?? "").PadRight(16));
+        sb.Append((merchantNumber ?? "").PadRight(16));
         // Pos 27-45: Token (19 chars, space-padded right)
         sb.Append((data.Token ?? "").PadRight(19));
         // Pos 46-49: Expiry Date YYMM (4 chars)

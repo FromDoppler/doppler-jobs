@@ -64,7 +64,7 @@ public class CreditCardServiceTests
         var outputDir = Path.Combine(DefaultSettings.LocalUploadFilePath, "comerica", "request");
         Assert.True(Directory.Exists(outputDir), "Output directory should be created");
 
-        var files = Directory.GetFiles(outputDir, "DOPP_AU_REQ_*.txt");
+        var files = Directory.GetFiles(outputDir, "DOPP_R0BCRPPU.txt");
         Assert.Single(files);
 
         var content = await File.ReadAllTextAsync(files[0]);
