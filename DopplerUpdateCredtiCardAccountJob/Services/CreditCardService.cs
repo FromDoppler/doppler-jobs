@@ -301,12 +301,10 @@ public class CreditCardService : ICreditCardService
         sb.Append((data.Token ?? "").PadRight(19));
         // Pos 46-49: Expiry Date YYMM (4 chars)
         sb.Append((data.ExpiryDate ?? "").PadRight(4));
-        // Pos 50-59: Filler (10 spaces)
-        sb.Append(' ', 10);
-        // Pos 60: Tokenized Flag
+        // Pos 50: Tokenized Flag
         sb.Append('T');
-        // Pos 61-94: Filler (34 spaces)
-        sb.Append(' ', 34);
+        // Pos 51-94: Filler (44 spaces)
+        sb.Append(' ', 44);
 
         return sb.ToString();
     }
