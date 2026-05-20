@@ -6,7 +6,7 @@ public class UpdateCredtiCardAccountJobSettings
     public int Port { get; set; } = 22;
     public string Username { get; set; }
     public string Password { get; set; }
-    public long ChainCode { get; set; }
+    public string ChainCode { get; set; }
     public string MerchantNumber { get; set; }
     public string RemoteUploadPath { get; set; }
     public string LocalUploadFilePath { get; set; }
