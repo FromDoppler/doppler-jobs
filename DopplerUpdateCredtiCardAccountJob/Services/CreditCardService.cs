@@ -253,7 +253,7 @@ public class CreditCardService : ICreditCardService
         string localDirectory,
         string fileName,
         IEnumerable<CreditCardData> records,
-        long chainCode,
+        string chainCode,
         string merchantNumber)
     {
         var outputDirectory = Path.Combine(localDirectory, ComericaRequestSubdirectory);
@@ -287,14 +287,14 @@ public class CreditCardService : ICreditCardService
         return $"H{date}".PadRight(RecordLength);
     }
 
-    private static string BuildDetailRecord(CreditCardData data, long chainCode, string merchantNumber)
+    private static string BuildDetailRecord(CreditCardData data, string chainCode, string merchantNumber)
     {
         var sb = new StringBuilder(RecordLength);
 
         // Pos 1: Record type
         sb.Append('D');
         // Pos 2-10: Chain Code (9 chars, zero-padded left)
-        sb.Append(chainCode.ToString().PadLeft(9, '0'));
+        sb.Append((chainCode ?? "").PadLeft(9, '0'));
         // Pos 11-26: Merchant Number (16 chars)
         sb.Append((merchantNumber ?? "").PadRight(16));
         // Pos 27-45: Token (19 chars, space-padded right)
