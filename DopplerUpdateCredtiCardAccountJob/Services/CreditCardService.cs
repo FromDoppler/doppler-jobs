@@ -186,7 +186,12 @@ public class CreditCardService : ICreditCardService
 
         _logger.LogInformation("Response file processing completed. {ActionableCount} actionable records found.", results.Count);
 
-        // TODO: Update in database
+        // DRY-RUN: database persistence is intentionally disabled for now.
+        // We only log what WOULD be updated/saved so it can be reviewed before enabling writes.
+        LogPlannedDatabaseChanges(results);
+
+        // TODO: Enable database persistence once the dry-run output has been validated.
+        // NOTE: enabling this requires making this method async (Task) so the repository calls can be awaited.
         // foreach (var record in results)
         // {
         //     switch (record.Action)
@@ -205,6 +210,82 @@ public class CreditCardService : ICreditCardService
 
         return results;
     }
+
+    // DRY-RUN preview: logs exactly what would be written to the database for each actionable record,
+    // without persisting anything. Records are matched in DB by BillingCredits.WorldPayToken = OldToken.
+    private void LogPlannedDatabaseChanges(IReadOnlyList<AccountUpdaterResponseRecord> records)
+    {
+        if (records.Count == 0)
+        {
+            _logger.LogInformation("[DRY-RUN] No database changes to apply (no actionable records).");
+            return;
+        }
+
+        _logger.LogInformation(
+            "[DRY-RUN] Database persistence is DISABLED. Previewing {Count} planned change(s). Nothing will be saved.",
+            records.Count);
+
+        var updateTokenAndExpiryCount = 0;
+        var updateExpiryCount = 0;
+        var contactCardholderCount = 0;
+
+        foreach (var record in records)
+        {
+            switch (record.Action)
+            {
+                case ResponseAction.UpdateTokenAndExpiry:
+                    updateTokenAndExpiryCount++;
+                    _logger.LogInformation(
+                        "[DRY-RUN] UPDATE TOKEN + EXPIRY | MerchantNumber={MerchantNumber} | " +
+                        "WHERE BillingCredits.WorldPayToken = '{OldToken}' | " +
+                        "SET WorldPayToken: '{OldToken}' -> '{NewToken}' | " +
+                        "SET Expiry: '{OldExpiry}' -> '{NewExpiry}' (CCExpYear={ExpYear}, CCExpMonth={ExpMonth}) | " +
+                        "ResponseCode={ResponseCode}",
+                        record.MerchantNumber,
+                        record.OldToken,
+                        record.OldToken, record.NewToken,
+                        record.OldExpiry, record.NewExpiry,
+                        FormatExpiryYear(record.NewExpiry), FormatExpiryMonth(record.NewExpiry),
+                        record.ResponseCode);
+                    break;
+
+                case ResponseAction.UpdateExpiry:
+                    updateExpiryCount++;
+                    _logger.LogInformation(
+                        "[DRY-RUN] UPDATE EXPIRY ONLY | MerchantNumber={MerchantNumber} | " +
+                        "WHERE BillingCredits.WorldPayToken = '{OldToken}' (token unchanged) | " +
+                        "SET Expiry: '{OldExpiry}' -> '{NewExpiry}' (CCExpYear={ExpYear}, CCExpMonth={ExpMonth}) | " +
+                        "ResponseCode={ResponseCode}",
+                        record.MerchantNumber,
+                        record.OldToken,
+                        record.OldExpiry, record.NewExpiry,
+                        FormatExpiryYear(record.NewExpiry), FormatExpiryMonth(record.NewExpiry),
+                        record.ResponseCode);
+                    break;
+
+                case ResponseAction.ContactCardholder:
+                    contactCardholderCount++;
+                    _logger.LogWarning(
+                        "[DRY-RUN] CONTACT CARDHOLDER (no automatic update) | MerchantNumber={MerchantNumber} | " +
+                        "BillingCredits.WorldPayToken = '{OldToken}' should be flagged/reviewed. " +
+                        "No new token/expiry provided by Comerica. | ResponseCode={ResponseCode}",
+                        record.MerchantNumber, record.OldToken, record.ResponseCode);
+                    break;
+            }
+        }
+
+        _logger.LogInformation(
+            "[DRY-RUN] Planned changes summary -> UpdateTokenAndExpiry: {UpdateTokenAndExpiry}, " +
+            "UpdateExpiry: {UpdateExpiry}, ContactCardholder: {ContactCardholder}.",
+            updateTokenAndExpiryCount, updateExpiryCount, contactCardholderCount);
+    }
+
+    // Comerica expiry is expected in YYMM format (same as the request file).
+    private static string FormatExpiryYear(string yyMm)
+        => yyMm is { Length: 4 } ? "20" + yyMm.Substring(0, 2) : "(invalid)";
+
+    private static string FormatExpiryMonth(string yyMm)
+        => yyMm is { Length: 4 } ? yyMm.Substring(2, 2) : "(invalid)";
 
     private static AccountUpdaterResponseRecord ParseResponseDetailRecord(string line)
     {
