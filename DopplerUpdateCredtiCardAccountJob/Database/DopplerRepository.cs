@@ -60,7 +60,7 @@ namespace Doppler.UpdateCredtiCardAccount.Job.Database
                 await using var conn = _dbConnectionFactory.GetConnection();
                 return await conn.QueryAsync<CreditCardData>(
                     @"
-SELECT TOP (10)
+SELECT TOP (5)
     bc.WorldPayToken AS Token,
     RIGHT(CAST(bc.CCExpYear AS VARCHAR(4)), 2)
         + RIGHT('0' + CAST(bc.CCExpMonth AS VARCHAR(2)), 2) AS ExpiryDate
