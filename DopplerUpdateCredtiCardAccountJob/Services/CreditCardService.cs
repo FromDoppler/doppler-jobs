@@ -140,7 +140,7 @@ public class CreditCardService : ICreditCardService
     {
         _logger.LogInformation("Starting Account Updater response file processing.");
 
-        _logger.LogInformation($"Response file content: {responseFileContent}")
+        _logger.LogInformation($"Response file content: {responseFileContent}");
 
         var results = new List<AccountUpdaterResponseRecord>();
         using var reader = new StringReader(responseFileContent);
