@@ -101,6 +101,8 @@ public class CreditCardService : ICreditCardService
         using var reader = new StringReader(echoFileContent);
         var firstLine = reader.ReadLine();
 
+        _logger.LogInformation($"Echo file: {firstLine}");
+
         if (firstLine == null || firstLine.Length < MinEchoLineLength)
         {
             _logger.LogError("Invalid echo file format. Line is null or too short (length: {Length}).",
