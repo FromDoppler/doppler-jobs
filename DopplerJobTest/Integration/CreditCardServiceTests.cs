@@ -83,11 +83,12 @@ public class CreditCardServiceTests
         // Arrange
         var service = CreateService();
 
-        // Make sure this file exists in the FTP Server
-        var remoteEchoFilePath = "/download/DOPP_AU_ECHO_SAMPLE.txt";
+        // Make sure a file matching this prefix exists in the FTP Server
+        var remoteEchoPath = "/download";
+        var echoFileNamePrefix = "DOPP_AU_ECHO_SAMPLE";
 
         // Act
-        var result = await service.VerifyComericaRequestDelivery(remoteEchoFilePath);
+        var result = await service.VerifyComericaRequestDelivery(remoteEchoPath, echoFileNamePrefix);
 
         // Assert
         _output.WriteLine($"Status: {result.Status}");
@@ -104,11 +105,12 @@ public class CreditCardServiceTests
         // Arrange
         var service = CreateService();
 
-        // Make sure this file exists in the FTP Server
-        var remoteEchoFilePath = "/download/DOPP_AU_ECHO_SAMPLE_failed.txt";
+        // Make sure a file matching this prefix exists in the FTP Server
+        var remoteEchoPath = "/download";
+        var echoFileNamePrefix = "DOPP_AU_ECHO_SAMPLE_failed";
 
         // Act
-        var result = await service.VerifyComericaRequestDelivery(remoteEchoFilePath);
+        var result = await service.VerifyComericaRequestDelivery(remoteEchoPath, echoFileNamePrefix);
 
         // Assert
         _output.WriteLine($"Status: {result.Status}");
@@ -125,11 +127,12 @@ public class CreditCardServiceTests
         // Arrange
         var service = CreateService();
 
-        // Make sure this file does not exists in the FTP Server
-        var remoteEchoFilePath = "/download-empty/DOPP_AU_ECHO_SAMPLE.txt";
+        // Make sure no file matching this prefix exists in the FTP Server
+        var remoteEchoPath = "/download-empty";
+        var echoFileNamePrefix = "DOPP_AU_ECHO_SAMPLE";
 
         // Act
-        var result = await service.VerifyComericaRequestDelivery(remoteEchoFilePath);
+        var result = await service.VerifyComericaRequestDelivery(remoteEchoPath, echoFileNamePrefix);
 
         // Assert
         _output.WriteLine($"Status: {result.Status}");

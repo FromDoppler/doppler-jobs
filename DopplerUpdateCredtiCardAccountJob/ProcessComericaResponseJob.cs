@@ -35,19 +35,14 @@ public class ProcessComericaResponseJob(
         logger.LogInformation("Starting response file processing (iteration {Iteration}/{MaxRetries}).",
             iteration, config.MaxPollingRetries);
 
-        var remoteResponseFilePath = $"{config.RemoteResponsePath.TrimEnd('/')}/{config.ResponseFileName}";
+        logger.LogInformation("Searching for response file '{Prefix}*' in {Path}.",
+            config.ResponseFileName, config.RemoteResponsePath);
 
-        string content;
-        try
+        var content = await ftpService.DownloadFileContentByPrefix(config.RemoteResponsePath, $"{config.ResponseFileName}_");
+        if (content == null)
         {
-            logger.LogInformation("Downloading response file: {RemoteResponseFilePath}.", remoteResponseFilePath);
-            content = await ftpService.DownloadFileContent(remoteResponseFilePath);
-        }
-        catch (Renci.SshNet.Common.SftpPathNotFoundException)
-        {
-            logger.LogInformation(
-                "Response file not found yet at {RemoteResponseFilePath}. Will retry.",
-                remoteResponseFilePath);
+            logger.LogInformation("Response file '{Prefix}*' not found yet in {Path}. Will retry.",
+                config.ResponseFileName, config.RemoteResponsePath);
             return;
         }
 

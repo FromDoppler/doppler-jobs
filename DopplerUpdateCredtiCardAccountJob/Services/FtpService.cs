@@ -110,4 +110,40 @@ public class FtpService : IFtpService
         client.Disconnect();
         return Task.FromResult<IEnumerable<string>>(result);
     }
+
+    public Task<string> DownloadFileContentByPrefix(string remotePath, string fileNamePrefix)
+    {
+        using var client = CreateClient();
+        client.Connect();
+        _logger.LogInformation("Connected to SFTP server {Host}. Searching for files starting with '{Prefix}' in {RemotePath}.",
+            _settings.Host, fileNamePrefix, remotePath);
+
+        var remoteFile = client.ListDirectory(remotePath)
+            .Where(f => !f.IsDirectory && f.Name.StartsWith(fileNamePrefix, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(f => f.Name)
+            .Select(f => f.FullName)
+            .FirstOrDefault();
+
+        if (remoteFile == null)
+        {
+            _logger.LogInformation("No file starting with '{Prefix}' found in {RemotePath}.", fileNamePrefix, remotePath);
+            client.Disconnect();
+            return Task.FromResult<string>(null);
+        }
+
+        _logger.LogInformation("Resolved file '{RemoteFile}' for prefix '{Prefix}'. Downloading.", remoteFile, fileNamePrefix);
+
+        using var memoryStream = new MemoryStream();
+        client.DownloadFile(remoteFile, memoryStream);
+
+        memoryStream.Position = 0;
+        using var reader = new StreamReader(memoryStream);
+        var content = reader.ReadToEnd();
+
+        _logger.LogInformation("File {RemoteFile} downloaded successfully. Content length: {Length} chars.",
+            remoteFile, content.Length);
+
+        client.Disconnect();
+        return Task.FromResult(content);
+    }
 }
