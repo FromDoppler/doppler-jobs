@@ -38,14 +38,13 @@ public class VerifyComericaEchoJob(
         logger.LogInformation("Starting echo file verification (iteration {Iteration}/{MaxRetries}).",
             iteration, config.MaxPollingRetries);
 
-        var remoteEchoFilePath = $"{config.RemoteEchoPath.TrimEnd('/')}/{config.EchoFileName}";
-
-        var result = await creditCardService.VerifyComericaRequestDelivery(remoteEchoFilePath);
+        var result = await creditCardService.VerifyComericaRequestDelivery(config.RemoteEchoPath, $"{config.EchoFileName}_");
 
         switch (result.Status)
         {
             case EchoValidationStatus.NotFound:
-                logger.LogInformation("Echo file not found at {Path}. Will retry.", remoteEchoFilePath);
+                logger.LogInformation("Echo file '{Prefix}*' not found in {Path}. Will retry.",
+                    config.EchoFileName, config.RemoteEchoPath);
                 return;
 
             case EchoValidationStatus.Success:

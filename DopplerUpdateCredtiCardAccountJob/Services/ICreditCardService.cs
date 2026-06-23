@@ -8,7 +8,7 @@ public interface ICreditCardService
 {
     Task SendCurrentCCDataToComerica();
 
-    Task<EchoValidationResult> VerifyComericaRequestDelivery(string remoteEchoFilePath);
+    Task<EchoValidationResult> VerifyComericaRequestDelivery(string remoteEchoPath, string echoFileNamePrefix);
 
     List<AccountUpdaterResponseRecord> ProcessAccountUpdaterResponse(string responseFileContent);
 }

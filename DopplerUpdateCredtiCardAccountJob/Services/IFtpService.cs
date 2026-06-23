@@ -9,4 +9,5 @@ public interface IFtpService
     Task<string> DownloadFileContent(string remoteFilePath);
     Task<bool> CheckConnection();
     Task<IEnumerable<string>> ListFiles(string remotePath);
+    Task<string> DownloadFileContentByPrefix(string remotePath, string fileNamePrefix);
 }

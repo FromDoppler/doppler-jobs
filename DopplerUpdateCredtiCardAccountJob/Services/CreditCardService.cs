@@ -82,18 +82,14 @@ public class CreditCardService : ICreditCardService
         _logger.LogInformation("SendCurrentCCDataToComerica process completed successfully.");
     }
 
-    public async Task<EchoValidationResult> VerifyComericaRequestDelivery(string remoteEchoFilePath)
+    public async Task<EchoValidationResult> VerifyComericaRequestDelivery(string remoteEchoPath, string echoFileNamePrefix)
     {
-        _logger.LogInformation("Checking for echo file at {RemotePath}.", remoteEchoFilePath);
+        _logger.LogInformation("Checking for echo file '{Prefix}*' in {RemotePath}.", echoFileNamePrefix, remoteEchoPath);
 
-        string echoFileContent;
-        try
+        var echoFileContent = await _ftpService.DownloadFileContentByPrefix(remoteEchoPath, echoFileNamePrefix);
+        if (echoFileContent == null)
         {
-            echoFileContent = await _ftpService.DownloadFileContent(remoteEchoFilePath);
-        }
-        catch (Renci.SshNet.Common.SftpPathNotFoundException)
-        {
-            _logger.LogInformation("Echo file not found yet at {RemotePath}.", remoteEchoFilePath);
+            _logger.LogInformation("Echo file '{Prefix}*' not found yet in {RemotePath}.", echoFileNamePrefix, remoteEchoPath);
             return new EchoValidationResult { Status = EchoValidationStatus.NotFound };
         }
 
