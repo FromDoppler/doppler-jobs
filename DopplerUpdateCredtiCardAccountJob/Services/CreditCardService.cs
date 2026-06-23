@@ -98,8 +98,12 @@ public class CreditCardService : ICreditCardService
 
     private EchoValidationResult ParseEchoFileContent(string echoFileContent)
     {
+        _logger.LogInformation($"Echo file content: {echoFileContent}");
+
         using var reader = new StringReader(echoFileContent);
         var firstLine = reader.ReadLine();
+
+        _logger.LogInformation($"Echo file: {firstLine}");
 
         if (firstLine == null || firstLine.Length < MinEchoLineLength)
         {
