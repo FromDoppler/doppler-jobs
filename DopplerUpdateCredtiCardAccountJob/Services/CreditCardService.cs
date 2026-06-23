@@ -15,9 +15,9 @@ public class CreditCardService : ICreditCardService
 {
     private const string ComericaRequestSubdirectory = "request";
     private const int RecordLength = 94;
-    private const int MinEchoLineLength = 8;
-    private const int StatusFlagIndex = 7;
-    private const int MessageStartIndex = 8;
+    private const int MinEchoLineLength = 1;
+    private const int StatusFlagIndex = 0;
+    private const int MessageStartIndex = 1;
     private const char SuccessFlag = '1';
 
     private const int MinDetailLength = 78;
@@ -139,6 +139,8 @@ public class CreditCardService : ICreditCardService
     public List<AccountUpdaterResponseRecord> ProcessAccountUpdaterResponse(string responseFileContent)
     {
         _logger.LogInformation("Starting Account Updater response file processing.");
+
+        _logger.LogInformation($"Response file content: {responseFileContent}");
 
         var results = new List<AccountUpdaterResponseRecord>();
         using var reader = new StringReader(responseFileContent);
