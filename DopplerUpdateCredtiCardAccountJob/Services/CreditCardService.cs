@@ -15,9 +15,9 @@ public class CreditCardService : ICreditCardService
 {
     private const string ComericaRequestSubdirectory = "request";
     private const int RecordLength = 94;
-    private const int MinEchoLineLength = 8;
-    private const int StatusFlagIndex = 7;
-    private const int MessageStartIndex = 8;
+    private const int MinEchoLineLength = 1;
+    private const int StatusFlagIndex = 0;
+    private const int MessageStartIndex = 1;
     private const char SuccessFlag = '1';
 
     private const int MinDetailLength = 78;
