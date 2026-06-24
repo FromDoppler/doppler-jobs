@@ -56,6 +56,8 @@ public class VerifyComericaEchoJob(
                     job => job.Run(),
                     config.PollingCronExpression,
                     tz);
+
+                RecurringJob.RemoveIfExists(config.VerifyEchoJobIdentifier);
                 break;
 
             case EchoValidationStatus.Failed:
