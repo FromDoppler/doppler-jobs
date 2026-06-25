@@ -61,16 +61,17 @@ namespace Doppler.UpdateCredtiCardAccount.Job.Database
                 return await conn.QueryAsync<CreditCardData>(
                     @"
 SELECT TOP (5)
-    bc.WorldPayToken AS Token,
-    RIGHT(CAST(bc.CCExpYear AS VARCHAR(4)), 2)
-        + RIGHT('0' + CAST(bc.CCExpMonth AS VARCHAR(2)), 2) AS ExpiryDate
+    u.WorldPayToken AS Token,
+    RIGHT(CAST(u.CCExpYear AS VARCHAR(4)), 2)
+        + RIGHT('0' + CAST(u.CCExpMonth AS VARCHAR(2)), 2) AS ExpiryDate
 FROM [User] u
 INNER JOIN [BillingCredits] bc ON bc.IdBillingCredit = u.IdCurrentBillingCredit
-WHERE bc.IdPaymentMethod = @CreditCardPaymentMethodId
-  AND bc.WorldPayToken IS NOT NULL
-  AND bc.WorldPayToken <> ''
-  AND bc.CCExpMonth IS NOT NULL
-  AND bc.CCExpYear IS NOT NULL;",
+WHERE u.IdUser IN (529651, 615393)
+  AND bc.IdPaymentMethod = 1
+  AND u.WorldPayToken IS NOT NULL
+  AND u.WorldPayToken <> ''
+  AND u.CCExpMonth IS NOT NULL
+  AND u.CCExpYear IS NOT NULL;",
                     new { CreditCardPaymentMethodId });
             }
             catch (Exception e)
